@@ -1,5 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { Container } from 'reactstrap';
 
 import Home from './components/Home';
 import UploadFileForm from './components/UploadFileForm';
@@ -9,13 +10,13 @@ function App() {
 
   return (
     <Router>
-      <div className="App">
+      <Container className="App">
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/uploadFile" component={UploadFileForm} />
         <Route exact path="/takePicture" component={TakePicAndUpload} />
       </Switch>
-      </div>
+      </Container>
     </Router>
   );
 }
