@@ -1,0 +1,62 @@
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 320px) {
+  .img-container {
+      width: 280px;
+      height: 210px;
+  }
+  .img-preview {
+    width: 280px;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 360px) {
+  .img-container {
+      width: 320px;
+      height: 240px;
+  }
+  .img-preview {
+    width: 320px;
+  }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+  .img-container {
+    width: 320px;
+    height: 240px;
+  }
+  .img-preview {
+    width: 320px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {
+  .img-container {
+    width: 640px;
+    height: 480px;
+  }
+  .img-preview {
+    width: 640px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .img-container {
+    width: 640px;
+    height: 480px;
+  }
+  .img-preview {
+    width: 640px;
+  }
+}
+
+.img-container {
+
+}
+.img-preview {
+  display: block;
+}
