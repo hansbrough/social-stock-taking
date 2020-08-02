@@ -5,47 +5,100 @@ import {
   Progress,
 } from 'reactstrap';
 import { createWorker } from 'tesseract.js';
+//= ==== Constants ===== //
+import RegexConstants from '../constants/RegexConstants';
 //= ==== Components ===== //
 import {storage} from '../firebase/firebase';
 import ImageCropper from './imageCropper';
+//= ==== Utils ===== //
+import keywords from '../utils/aloe_keywords';
+//= ==== Dev ===== //
+import aloesDevDB from '../utils/aloes';
+
 
 const UploadFileForm = () => {
   const [imageFile, setImageFile] = useState();
   const [imageUrl, setImageUrl] = useState();
   const [croppedImageUrl, setCroppedImageUrl] = useState();
+  const [processedImageUrl, setProcessedImageUrl] = useState();
   const [ocr, setOcr] = useState();
   const [ocrStarted, setOcrStarted] = useState();
   const [ocrProgress, setOcrProgress] = useState();
+  const [plants, setPlants] = useState([]);
+  const [currentPlant, setCurrentPlant] = useState();
+  const [price, setPrice] = useState();
   // const imageElem  = useRef(null);
   const fileInputElem = useRef(null);
+  const ocrTextareaElem = useRef(null);
 
   // get a file preview before upload to remote bucket
   const reader  = new FileReader();
+
   reader.onloadend = function () {
     // console.log("reader.onloadend reader.result:",reader.result)
     setImageUrl(reader.result)
   }
 
+  // Caman is global object installed via a library's script tag
+  const Caman = window.Caman;
+
+  // once local image file has been read
   useEffect(() => {
     if (imageFile) {
       reader.readAsDataURL(imageFile);
     }
   },[reader, imageFile]);
 
+  // once cropped image has been pre-processed
+  useEffect(() => {
+    processedImageUrl && runOCR(processedImageUrl);
+  },[processedImageUrl]);
+
+  useEffect(() => {
+    ocr && handleNormalizeClick()
+  },[ocr])
+  // once list of matching plant id's has been updated
+  useEffect(() => {
+    if(plants.length) {
+      console.log("plants updated:",plants);
+      setCurrentPlant(aloesDevDB[plants[0]]);// TODO: for now use first one - later display selectable list
+    }
+  },[plants]);
+
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
   });
 
-  const doOCR = async () => {
-    console.log("doOCR");
+  // attempt to make image more readable by OCR
+  const preProcessOCRImage = () => {
+    //console.log("preProcessOCRImage")
+    Caman('#filteredImage', croppedImageUrl, function() {
+          this.greyscale();
+          this.sharpen(100);
+          //this.threshold(80);
+          //this.contrast(60)
+          //this.stackBlur(1);
+          this.render(function(){
+            //const processedImg = this.toBase64();
+            setProcessedImageUrl(this.toBase64());
+          });
+        });
+  }
+
+  const runOCR = async (imageUrl) => {
+    console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(croppedImageUrl);
+    const { data: { text } } = await worker.recognize(imageUrl);
     setOcr(text);
     setOcrStarted(false);
   };
+
+  const getImageText = evt => {
+    preProcessOCRImage();
+  }
 
   const handleImageFile = (e) => {
     setImageFile(e.target.files[0]);
@@ -96,6 +149,62 @@ const UploadFileForm = () => {
     setOcr(evt.target.value);
   }
 
+  const handlePriceChange = evt => {
+    setPrice(evt.target.value);
+  }
+
+  // clean up text returned by OCR process
+  const handleNormalizeClick = () => {
+    // remove special characters e.g. ", / - ' '" etc introduced by ocr
+    // trim dangling whitespace, remove lines w/1 character
+    let filteredOcr = ocrTextareaElem.current.props.value
+    .replace(RegexConstants.EXTRANEOUS_OCR_CHARS,'')
+    .replace(RegexConstants.DANGLING_WHITESPACE,'')
+    .replace(RegexConstants.SINGLE_CHAR_LINE,'');
+    setOcr(filteredOcr)
+  }
+
+  // description...
+  const handleSearch = evt => {
+    // console.log("handleSearch")
+    let candidates = [];
+    const ocrText = ocr.toLowerCase();
+    // look for context word 'aloe'
+    // get word before and after context keyword
+    let match = RegexConstants.ALOE_KEYWORDS.exec(ocrText);
+    // iterate through all matches looking for named groups
+    while (match != null) {
+      // console.log("match.groups:",match.groups)
+      if(match) {
+        candidates = [...new Set(candidates.concat(Object.values(match.groups)))];
+        // console.log("candidates:",candidates);
+      }
+      match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
+    }
+    // search for these prefix/suffix words in list of known keywords
+    updatePlants(candidates, ocrText.split(' '));
+  }
+
+  // given an array of words determine if any members are keywords and add to plants list.
+  // optionally use a backup list for further searching
+  const updatePlants = (list, secondaryList) => {
+    // console.log("updatePlants list:",list);
+    let result;
+    let flag;
+    list.forEach(key => {
+      // console.log("...key:",key)
+      result = keywords[key];
+      if(!!result) {
+        // console.log(".....",result)
+        flag = true;
+        setPlants([...new Set(plants.concat(result))]);
+      }
+    });
+    if(!flag && secondaryList) {
+      updatePlants(secondaryList);
+    }
+  };
+
   return (
     <Container>
       <h1>Upload Image</h1>
@@ -112,7 +221,7 @@ const UploadFileForm = () => {
       { imageFile
         && (
           <FormGroup>
-            <Button color="primary" onClick={doOCR} className="mr-2" disabled={ocrStarted }>Run OCR</Button>
+            <Button color="primary" onClick={getImageText} className="mr-2" disabled={ocrStarted }>Get Image Text!</Button>
           </FormGroup>
         )
       }
@@ -123,15 +232,54 @@ const UploadFileForm = () => {
           <Form onSubmit={handleFireBaseUpload}>
           <FormGroup>
             <label>
-              Here's a best guess at the text in your image. Please correct any mistakes.<br/>
+              Here's a best guess at the text in the image.<br/>
               <Input
                 className="ocr-of-snapshot p-2 w-100"
                 type="textarea"
                 value={ocr}
                 style={{minHeight:'10rem'}}
                 onChange={handleOcrInputChange}
+                ref={ocrTextareaElem}
               />
             </label>
+
+            <div>
+              <Button color="primary" onClick={handleSearch} className="mr-2">Search</Button>
+            </div>
+
+            {currentPlant
+            && (
+              <>
+              <p>Based on the image text here's what we think it is:</p>
+              <label className="d-block">
+                Latin Name:
+                <Input
+                  className="p-2"
+                  type="text"
+                  value={currentPlant.latin_name}
+                  disabled={true}
+                />
+              </label>
+              <label className="d-block">
+                Common Name:
+                <Input
+                  className="p-2"
+                  type="text"
+                  value={currentPlant.aka[0]}
+                  disabled={true}
+                />
+              </label>
+              <label className="d-block">
+                Price
+                <Input
+                  className="p-2"
+                  type="text"
+                  value={price}
+                  onChange={handlePriceChange}
+                />
+              </label>
+              </>
+            )}
             <div>
               <Button color="primary" className="mr-2">Save</Button>
               <Button color="secondary" onClick={handleCancelClick} className="mr-2">Cancel</Button>
@@ -151,6 +299,9 @@ const UploadFileForm = () => {
         )
       }
       </FormGroup>
+
+      <p><canvas id="filteredImage"></canvas></p>
+
       <p><a href="/">Back To Home</a></p>
     </Container>
   );
