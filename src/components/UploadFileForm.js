@@ -1,4 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
+import {useSelector} from 'react-redux'
 import {
   Container,
   Form, FormGroup, Button, Input,
@@ -13,10 +14,14 @@ import ImageCropper from './imageCropper';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
 //= ==== Dev ===== //
-import aloesDevDB from '../utils/aloes';
+import {
+  selectAloes
+} from '../features/plants/plantsSlice';
 
 
 const UploadFileForm = () => {
+  const aloePlants = useSelector(selectAloes);
+
   const [imageFile, setImageFile] = useState();
   const [imageUrl, setImageUrl] = useState();
   const [croppedImageUrl, setCroppedImageUrl] = useState();
@@ -24,7 +29,7 @@ const UploadFileForm = () => {
   const [ocr, setOcr] = useState();
   const [ocrStarted, setOcrStarted] = useState();
   const [ocrProgress, setOcrProgress] = useState();
-  const [plants, setPlants] = useState([]);
+  const [plantIds, setPlantIds] = useState([]);
   const [currentPlant, setCurrentPlant] = useState();
   const [price, setPrice] = useState();
   // const imageElem  = useRef(null);
@@ -59,11 +64,11 @@ const UploadFileForm = () => {
   },[ocr])
   // once list of matching plant id's has been updated
   useEffect(() => {
-    if(plants.length) {
-      console.log("plants updated:",plants);
-      setCurrentPlant(aloesDevDB[plants[0]]);// TODO: for now use first one - later display selectable list
+    if(plantIds.length) {
+      console.log("plantIds updated:",plantIds);
+      setCurrentPlant(aloePlants[plantIds[0]]);// TODO: for now use first one - later display selectable list
     }
-  },[plants]);
+  },[aloePlants, plantIds]);
 
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
@@ -86,7 +91,7 @@ const UploadFileForm = () => {
   }
 
   const runOCR = async (imageUrl) => {
-    console.log("runOCR");
+    // console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -182,26 +187,26 @@ const UploadFileForm = () => {
       match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
     }
     // search for these prefix/suffix words in list of known keywords
-    updatePlants(candidates, ocrText.split(' '));
+    updatePlantIds(candidates, ocrText.split(' '));
   }
 
-  // given an array of words determine if any members are keywords and add to plants list.
+  // given an array of words determine if any members are keywords and add to plantIds list.
   // optionally use a backup list for further searching
-  const updatePlants = (list, secondaryList) => {
-    // console.log("updatePlants list:",list);
+  const updatePlantIds = (list, secondaryList) => {
+      // console.log("updatePlantIds list:",list);
     let result;
     let flag;
     list.forEach(key => {
-      // console.log("...key:",key)
+        // console.log("...key:",key)
       result = keywords[key];
       if(!!result) {
         // console.log(".....",result)
         flag = true;
-        setPlants([...new Set(plants.concat(result))]);
+        setPlantIds([...new Set(plantIds.concat(result))]);
       }
     });
     if(!flag && secondaryList) {
-      updatePlants(secondaryList);
+      updatePlantIds(secondaryList);
     }
   };
 
