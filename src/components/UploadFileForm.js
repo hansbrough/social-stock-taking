@@ -1,4 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
+import {useSelector} from 'react-redux'
 import {
   Container,
   Form, FormGroup, Button, Input,
@@ -13,10 +14,14 @@ import ImageCropper from './imageCropper';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
 //= ==== Dev ===== //
-import aloesDevDB from '../utils/aloes';
+import {
+  selectAloes
+} from '../features/plants/plantsSlice';
 
 
 const UploadFileForm = () => {
+  const aloePlants = useSelector(selectAloes);
+
   const [imageFile, setImageFile] = useState();
   const [imageUrl, setImageUrl] = useState();
   const [croppedImageUrl, setCroppedImageUrl] = useState();
@@ -24,12 +29,17 @@ const UploadFileForm = () => {
   const [ocr, setOcr] = useState();
   const [ocrStarted, setOcrStarted] = useState();
   const [ocrProgress, setOcrProgress] = useState();
-  const [plants, setPlants] = useState([]);
+  const [plantIds, setPlantIds] = useState([]);
   const [currentPlant, setCurrentPlant] = useState();
   const [price, setPrice] = useState();
+  const [position, setPosition] = useState();
+  const [place, setPlace] = useState();
   // const imageElem  = useRef(null);
   const fileInputElem = useRef(null);
   const ocrTextareaElem = useRef(null);
+
+  // todo: move to a separate api file
+  //const placesAPIUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&input=home&locationbias=circle:${lat},${lng}&key=AIzaSyD0A1ajEZaWOYAN11LNuk31rjN4SpHZSEY`;
 
   // get a file preview before upload to remote bucket
   const reader  = new FileReader();
@@ -59,11 +69,11 @@ const UploadFileForm = () => {
   },[ocr])
   // once list of matching plant id's has been updated
   useEffect(() => {
-    if(plants.length) {
-      console.log("plants updated:",plants);
-      setCurrentPlant(aloesDevDB[plants[0]]);// TODO: for now use first one - later display selectable list
+    if(plantIds.length) {
+      console.log("plantIds updated:",plantIds);
+      setCurrentPlant(aloePlants[plantIds[0]]);// TODO: for now use first one - later display selectable list
     }
-  },[plants]);
+  },[aloePlants, plantIds]);
 
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
@@ -86,7 +96,7 @@ const UploadFileForm = () => {
   }
 
   const runOCR = async (imageUrl) => {
-    console.log("runOCR");
+    // console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -153,6 +163,20 @@ const UploadFileForm = () => {
     setPrice(evt.target.value);
   }
 
+  const handlePlaceChange = evt => {
+    setPlace(evt.target.value)
+  }
+
+  const handleFindLocationClick = evt => {
+    console.log("handleFindLocationClick");
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log("..geo position:",position.coords);
+      setPosition(position);
+      // dev only
+      setPlace(`latitude:${position.coords.latitude} x longitude:${position.coords.longitude}`)
+    });
+  }
+
   // clean up text returned by OCR process
   const handleNormalizeClick = () => {
     // remove special characters e.g. ", / - ' '" etc introduced by ocr
@@ -165,8 +189,8 @@ const UploadFileForm = () => {
   }
 
   // description...
-  const handleSearch = evt => {
-    // console.log("handleSearch")
+  const handleSearchClick = evt => {
+    // console.log("handleSearchClick")
     let candidates = [];
     const ocrText = ocr.toLowerCase();
     // look for context word 'aloe'
@@ -182,26 +206,34 @@ const UploadFileForm = () => {
       match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
     }
     // search for these prefix/suffix words in list of known keywords
-    updatePlants(candidates, ocrText.split(' '));
+    updatePlantIds(candidates, ocrText.split(' '));
+
+    // look for price
+    let priceMatch =  RegexConstants.PRICE.exec(ocrText);
+    if(priceMatch) {
+      console.log("priceMatch:",priceMatch);
+      setPrice(priceMatch[0])
+    }
+
   }
 
-  // given an array of words determine if any members are keywords and add to plants list.
+  // given an array of words determine if any members are keywords and add to plantIds list.
   // optionally use a backup list for further searching
-  const updatePlants = (list, secondaryList) => {
-    // console.log("updatePlants list:",list);
+  const updatePlantIds = (list, secondaryList) => {
+      // console.log("updatePlantIds list:",list);
     let result;
     let flag;
     list.forEach(key => {
-      // console.log("...key:",key)
+        // console.log("...key:",key)
       result = keywords[key];
       if(!!result) {
         // console.log(".....",result)
         flag = true;
-        setPlants([...new Set(plants.concat(result))]);
+        setPlantIds([...new Set(plantIds.concat(result))]);
       }
     });
     if(!flag && secondaryList) {
-      updatePlants(secondaryList);
+      updatePlantIds(secondaryList);
     }
   };
 
@@ -216,12 +248,13 @@ const UploadFileForm = () => {
           onChange={handleImageFile}
         />
         {imageUrl && <ImageCropper src={imageUrl} cb={setCroppedImageUrl} />}
+        <canvas id="filteredImage" className="d-none"></canvas>
       </FormGroup>
 
       { imageFile
         && (
           <FormGroup>
-            <Button color="primary" onClick={getImageText} className="mr-2" disabled={ocrStarted }>Get Image Text!</Button>
+            <Button color="primary" onClick={getImageText} className="mr-2" disabled={ocrStarted }>Get Text in Image!</Button>
           </FormGroup>
         )
       }
@@ -244,7 +277,7 @@ const UploadFileForm = () => {
             </label>
 
             <div>
-              <Button color="primary" onClick={handleSearch} className="mr-2">Search</Button>
+              <Button color="primary" onClick={handleSearchClick} className="mr-2">Search</Button>
             </div>
 
             {currentPlant
@@ -280,6 +313,28 @@ const UploadFileForm = () => {
               </label>
               </>
             )}
+
+            <hr />
+              <FormGroup>
+              <label className="w-100">
+                Where did you find this plant?
+                <Input
+                  className="p-2 w-50"
+                  type="text"
+                  value={place}
+                  onChange={handlePlaceChange}
+                  placeholder="Enter some of the store name"
+                />
+              </label>
+              <Button
+                className="d-block"
+                onClick={handleFindLocationClick}
+              >
+                Find your location
+              </Button>
+              </FormGroup>
+            <hr />
+
             <div>
               <Button color="primary" className="mr-2">Save</Button>
               <Button color="secondary" onClick={handleCancelClick} className="mr-2">Cancel</Button>
@@ -299,8 +354,6 @@ const UploadFileForm = () => {
         )
       }
       </FormGroup>
-
-      <p><canvas id="filteredImage"></canvas></p>
 
       <p><a href="/">Back To Home</a></p>
     </Container>
