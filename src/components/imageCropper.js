@@ -5,8 +5,8 @@ import { Button } from 'reactstrap';
 import "cropperjs/dist/cropper.min.css";
 import "../styles/imagecropper.css";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUndo } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUndo } from '@fortawesome/free-solid-svg-icons';
 
 const ImageCropper = (
   {src, cb}
