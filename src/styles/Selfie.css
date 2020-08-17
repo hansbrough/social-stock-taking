@@ -2,6 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 .cam, .preview {
@@ -9,12 +10,15 @@
 }
 
 .preview-img {
-    display: block;
+    /*display: block;*/
+    width: 100%;
+    height: auto;
+    object-fit: cover;
 }
 
 .capture-btn {
-    position: absolute;
-    background: none;
+    /*position: absolute;
+    background: none;*/
     color: #fff;
     border: none;
     font-size: 40px;
@@ -28,21 +32,21 @@
     display: block;
 }
 
-.btn-container {
+/*.btn-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     position: absolute;
     bottom: 0;
     left: 0;
-}
+}*/
 
 .back-btn, .download-btn {
     background: none;
     color: #fff;
     border: none;
-    font-size: 40px;
+    font-size: 1.5rem;
 }
 
 .download-btn {
-    margin-left: 25px;
+    /*margin-left: 25px;*/
 }

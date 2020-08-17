@@ -1,37 +1,75 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { createWorker } from 'tesseract.js';
-
+import { Button, ButtonGroup, Progress } from 'reactstrap';
+//= ==== Components ===== //
+import ImageCropper from './imageCropper';
 import {storage} from '../firebase/firebase';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faAngleLeft, faCloudUploadAlt, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const TakePicAndUpload = () => {
   const [imageURL, setImageURL] = useState();
+  const [croppedImageUrl, setCroppedImageUrl] = useState();
+  const [processedImageUrl, setProcessedImageUrl] = useState();
   const [ocr, setOcr] = useState();
   const [ocrStarted, setOcrStarted] = useState();
+  const [ocrProgress, setOcrProgress] = useState();
 
-  const videoElem   = useRef(null);
-  const canvasElem  = useRef(null);
-  const imageElem   = useRef(null);
+  const videoElem       = useRef(null);
+  const canvasElem      = useRef(null);
+  // const imageElem       = useRef(null);
+  const ocrTextareaElem = useRef(null);
   const constraints = { facingMode: 'environment' };
+
+  // Caman is global object installed via a library's script tag
+  const Caman = window.Caman;
 
   useEffect(() => {
     // listDevices();
     startCamera();
   });
 
+  // do something once cropped image has been pre-processed
+  useEffect(() => {
+    processedImageUrl && runOCR(processedImageUrl);
+  },[processedImageUrl]);
+
+  // attempt to make image more readable by OCR
+  const preProcessOCRImage = () => {
+    console.log("preProcessOCRImage")
+    Caman('#filteredImage', croppedImageUrl, function() {
+          this.greyscale();
+          this.sharpen(100);
+          //this.threshold(80);
+          //this.contrast(60)
+          //this.stackBlur(1);
+          this.render(function(){
+            //const processedImg = this.toBase64();
+            setProcessedImageUrl(this.toBase64());
+          });
+        });
+  }
+
   const worker = createWorker({
-    logger: m => console.log(m),
+    logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
   });
 
-  const doOCR = async () => {
+  const runOCR = async (imageUrl) => {
+    console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(canvasElem.current);
+    const { data: { text } } = await worker.recognize(imageUrl);
     setOcr(text);
     setOcrStarted(false);
   };
+
+  const getImageText = evt => {
+    preProcessOCRImage();
+  }
 
   const startCamera = async () => {
     try {
@@ -97,19 +135,9 @@ const TakePicAndUpload = () => {
     })
   }
 
-  // List cameras and microphones.
-  // const listDevices = () => {
-  //   navigator.mediaDevices.enumerateDevices()
-  //   .then(function(devices) {
-  //     devices.forEach(function(device) {
-  //       console.log(device.kind + ": " + device.label +
-  //                   " id = " + device.deviceId);
-  //     });
-  //   })
-  //   .catch(function(err) {
-  //     console.log(err.name + ": " + err.message);
-  //   });
-  // }
+  const handleOcrInputChange = evt => {
+    setOcr(evt.target.value);
+  }
 
   return (
     <>
@@ -119,27 +147,30 @@ const TakePicAndUpload = () => {
           && (
             <>
               <video ref={videoElem} autoPlay={true}></video>
-              <button className="btn capture-btn" onClick={takeSelfie}>
-                <i className="fa fa-camera" aria-hidden="true"></i>
-              </button>
+              <Button className="btn capture-btn" onClick={takeSelfie}>
+                <FontAwesomeIcon icon={faCamera} />
+              </Button>
             </>
         )}
 
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
-          <img className="preview-img" alt="" src={imageURL} ref={imageElem} />
-
+          {/*<img className="preview-img" alt="" src={imageURL} ref={imageElem} */}
+          {imageURL && <ImageCropper src={imageURL} cb={setCroppedImageUrl} />}
+          <canvas id="filteredImage" className="d-none"></canvas>
           {imageURL
             && (
-              <div className="btn-container">
-                <button className="btn back-btn" onClick={backToCamera}>
-                  <i className="fa fa-chevron-left" aria-hidden="true"></i>
-                </button>
-                <button className="btn download-btn" onClick={uploadToCloud}>
-                  <i className="fa fa-upload" aria-hidden="true"></i>
-                </button>
-                <button className="btn-primary" onClick={doOCR}>Run OCR</button>
-              </div>
+              <ButtonGroup className="mt-2 w-100" size="lg">
+                <Button className="btn" onClick={getImageText}>
+                  <FontAwesomeIcon icon={faFileAlt} /> Get Text
+                </Button>
+                <Button className="btn back-btn" onClick={backToCamera}>
+                  <FontAwesomeIcon icon={faAngleLeft} /> Retake
+                </Button>
+                <Button className="btn download-btn" onClick={uploadToCloud}>
+                  <FontAwesomeIcon icon={faCloudUploadAlt} /> Upload
+                </Button>
+              </ButtonGroup>
             )}
         </div>
       </div>
@@ -148,18 +179,30 @@ const TakePicAndUpload = () => {
       {ocr &&
         (
           <label>
-            Here's a best guess at the text in your image. Please correct any mistakes.<br/>
-            <input className="ocr-of-snapshot p-2 w-50" type="text" defaultValue={ocr} />
+            Here's a best guess at the text in the image.<br/>
+            <input
+              className="ocr-of-snapshot p-2 w-50"
+              type="textarea"
+              value={ocr}
+              style={{minHeight:'10rem'}}
+              onChange={handleOcrInputChange}
+              ref={ocrTextareaElem}
+            />
           </label>
         )
       }
-      {ocrStarted && !ocr &&
+      {ocrStarted && !ocrProgress &&
         (
-          <p>...loading</p>
+          <span>Preparing Image...</span>
+        )
+      }
+      {ocrStarted && ocrProgress &&
+        (
+          <Progress max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
         )
       }
       </section>
-      <p><a href="/">Back Home</a></p>
+      <p className="mt-2"><a href="/">Back Home</a></p>
     </>
   );
 };

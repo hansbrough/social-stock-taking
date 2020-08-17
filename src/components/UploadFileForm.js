@@ -1,11 +1,14 @@
+/*global google*/
 import React, {useState, useRef, useEffect} from 'react';
 import {useSelector} from 'react-redux'
 import {
   Container,
   Form, FormGroup, Button, Input,
-  Progress,
+  Progress, Spinner,
 } from 'reactstrap';
+import Select from 'react-select';
 import { createWorker } from 'tesseract.js';
+// import * as GoogleMapsAPI from '../apis/GoogleMapsAPI'; // ran into CORS issues
 //= ==== Constants ===== //
 import RegexConstants from '../constants/RegexConstants';
 //= ==== Components ===== //
@@ -34,15 +37,17 @@ const UploadFileForm = () => {
   const [price, setPrice] = useState();
   const [position, setPosition] = useState();
   const [place, setPlace] = useState();
+  const [places, setPlaces] = useState();
+  const [placeSearching, setPlaceSearching] = useState();
   // const imageElem  = useRef(null);
   const fileInputElem = useRef(null);
   const ocrTextareaElem = useRef(null);
 
-  // todo: move to a separate api file
-  //const placesAPIUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&input=home&locationbias=circle:${lat},${lng}&key=AIzaSyD0A1ajEZaWOYAN11LNuk31rjN4SpHZSEY`;
-
   // get a file preview before upload to remote bucket
   const reader  = new FileReader();
+
+  // create a version of google's places service to make api calls on our behalf
+  const placesService = new google.maps.places.PlacesService(document.createElement('div'))
 
   reader.onloadend = function () {
     // console.log("reader.onloadend reader.result:",reader.result)
@@ -74,6 +79,13 @@ const UploadFileForm = () => {
       setCurrentPlant(aloePlants[plantIds[0]]);// TODO: for now use first one - later display selectable list
     }
   },[aloePlants, plantIds]);
+
+  // once places known
+  useEffect(() => {
+    if (places) {
+      setPlace(places[0]);
+    }
+  },[places]);
 
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
@@ -164,16 +176,57 @@ const UploadFileForm = () => {
   }
 
   const handlePlaceChange = evt => {
-    setPlace(evt.target.value)
+    setPlace(evt.target.value);
+  }
+
+  const handlePlaceSelectChange = selectedOption => {
+    console.log("handlePlaceSelectChange:",selectedOption)
+    setPlace(selectedOption);
   }
 
   const handleFindLocationClick = evt => {
     console.log("handleFindLocationClick");
+    setPlaceSearching(true);
     navigator.geolocation.getCurrentPosition((position) => {
       console.log("..geo position:",position.coords);
       setPosition(position);
-      // dev only
-      setPlace(`latitude:${position.coords.latitude} x longitude:${position.coords.longitude}`)
+      // use position to find a 'place' via google maps
+      placesService.findPlaceFromQuery({
+        query: place,
+        locationBias: { lat: position.coords.latitude, lng: position.coords.longitude },
+        fields:['place_id','name','geometry','type','business_status','formatted_address'],
+      }, places => {
+        console.log("gmaps places result:",places);
+        setPlaces(places.map(place => {
+          return {value: place.place_id, label: `${place.name}, ${place.formatted_address}`}
+        }));
+
+        if (places && places.length) {
+          if(places.length === 1) {
+            // show a single result
+            places[0].name && setPlace(`${places[0].name}, ${places[0].formatted_address}`);
+          } else {
+            // display selector
+          }
+        } else {
+          // no results
+        }
+        setPlaceSearching(false);
+      });
+
+      // NOTE: ran into CORS issues  using straight call to  their api
+      // GoogleMapsAPI.FindPlace({
+      //   input_type:'textquery',
+      //   input:'home depot',
+      //   lat:position.coords.latitude,
+      //   lng:position.coords.longitude
+      // })
+      // .then(response => {
+      //   console.log("response:",response)
+      // })
+      // .catch((err) => {
+      //   console.log("err:",err)
+      // });
     });
   }
 
@@ -211,8 +264,10 @@ const UploadFileForm = () => {
     // look for price
     let priceMatch =  RegexConstants.PRICE.exec(ocrText);
     if(priceMatch) {
-      console.log("priceMatch:",priceMatch);
-      setPrice(priceMatch[0])
+      //clean up
+      const price = priceMatch[0].replace(' ','');
+      // console.log("priceMatch:",priceMatch, " price:",price);
+      setPrice(price)
     }
 
   }
@@ -319,19 +374,30 @@ const UploadFileForm = () => {
               <label className="w-100">
                 Where did you find this plant?
                 <Input
-                  className="p-2 w-50"
+                  className="p-2"
                   type="text"
-                  value={place}
+
                   onChange={handlePlaceChange}
-                  placeholder="Enter some of the store name"
+                  placeholder="Enter some or all of the store name"
                 />
               </label>
               <Button
                 className="d-block"
                 onClick={handleFindLocationClick}
               >
-                Find your location
+                {!placeSearching && (<span>Find your location</span>)}
+                {placeSearching
+                  && (
+                    <><Spinner size="sm" color="secondary" /> Searching...</>
+                  )
+                }
               </Button>
+              <div id="placesContainer"></div>
+              <Select
+                value={place}
+                onChange={handlePlaceSelectChange}
+                options={places}
+              />
               </FormGroup>
             <hr />
 
@@ -356,6 +422,7 @@ const UploadFileForm = () => {
       </FormGroup>
 
       <p><a href="/">Back To Home</a></p>
+
     </Container>
   );
 };
