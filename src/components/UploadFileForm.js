@@ -4,7 +4,7 @@ import {useSelector} from 'react-redux'
 import {
   Container,
   Form, FormGroup, Button, Input,
-  Progress,
+  Progress, Spinner,
 } from 'reactstrap';
 import Select from 'react-select';
 import { createWorker } from 'tesseract.js';
@@ -38,6 +38,7 @@ const UploadFileForm = () => {
   const [position, setPosition] = useState();
   const [place, setPlace] = useState();
   const [places, setPlaces] = useState();
+  const [placeSearching, setPlaceSearching] = useState();
   // const imageElem  = useRef(null);
   const fileInputElem = useRef(null);
   const ocrTextareaElem = useRef(null);
@@ -82,7 +83,6 @@ const UploadFileForm = () => {
   // once places known
   useEffect(() => {
     if (places) {
-      console.log("!!places changed");
       setPlace(places[0]);
     }
   },[places]);
@@ -186,6 +186,7 @@ const UploadFileForm = () => {
 
   const handleFindLocationClick = evt => {
     console.log("handleFindLocationClick");
+    setPlaceSearching(true);
     navigator.geolocation.getCurrentPosition((position) => {
       console.log("..geo position:",position.coords);
       setPosition(position);
@@ -210,6 +211,7 @@ const UploadFileForm = () => {
         } else {
           // no results
         }
+        setPlaceSearching(false);
       });
 
       // NOTE: ran into CORS issues  using straight call to  their api
@@ -262,8 +264,10 @@ const UploadFileForm = () => {
     // look for price
     let priceMatch =  RegexConstants.PRICE.exec(ocrText);
     if(priceMatch) {
-      console.log("priceMatch:",priceMatch);
-      setPrice(priceMatch[0])
+      //clean up
+      const price = priceMatch[0].replace(' ','');
+      // console.log("priceMatch:",priceMatch, " price:",price);
+      setPrice(price)
     }
 
   }
@@ -381,7 +385,12 @@ const UploadFileForm = () => {
                 className="d-block"
                 onClick={handleFindLocationClick}
               >
-                Find your location
+                {!placeSearching && (<span>Find your location</span>)}
+                {placeSearching
+                  && (
+                    <><Spinner size="sm" color="secondary" /> Searching...</>
+                  )
+                }
               </Button>
               <div id="placesContainer"></div>
               <Select
