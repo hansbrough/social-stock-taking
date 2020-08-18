@@ -1,6 +1,7 @@
 /*global google*/
 import React, {useState, useRef, useEffect} from 'react';
-import {useSelector} from 'react-redux'
+import {useSelector} from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Form, FormGroup, Button, Input,
@@ -421,7 +422,7 @@ const UploadFileForm = () => {
       }
       </FormGroup>
 
-      <p><a href="/">Back To Home</a></p>
+      <p><Link to={{pathname: '/', state: { prevPath: window.location.pathname }}}>Back To Home</Link></p>
 
     </Container>
   );

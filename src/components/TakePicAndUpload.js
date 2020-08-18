@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import { Link } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { Button, ButtonGroup, Progress } from 'reactstrap';
 //= ==== Components ===== //
@@ -202,7 +203,7 @@ const TakePicAndUpload = () => {
         )
       }
       </section>
-      <p className="mt-2"><a href="/">Back Home</a></p>
+      <p className="mt-2"><Link to={{pathname: '/', state: { prevPath: window.location.pathname }}}>Back Home</Link></p>
     </>
   );
 };
