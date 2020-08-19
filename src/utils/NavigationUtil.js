@@ -1,14 +1,20 @@
 // Naviagtion Utility methods
 
 const workflow = {
-  '/': 0,
-  '/uploadFile': 1,
-  '/takePicture': 1,
+  '/'               : 0,
+  '/uploadFile'     : 1,
+  '/takePicture'    : 1,
+  '/cropPicture'    : 2,
+  '/getPictureText' : 3,
 };
 
 // determine direction of workflow navigation
 export const getNavigationDirection = (location) => {
   const { pathname } = location;
-  const { prevPath } = location.state;
-  return (workflow[pathname] < workflow[prevPath]) ? 'back' : 'forward';
+  let direction = 'back';
+  if (location.state) {
+    const { prevPath } = location.state;
+    direction = (workflow[pathname] < workflow[prevPath]) ? 'back' : 'forward';
+  }
+  return direction;
 };

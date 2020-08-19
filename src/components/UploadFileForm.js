@@ -15,6 +15,9 @@ import RegexConstants from '../constants/RegexConstants';
 //= ==== Components ===== //
 import {storage} from '../firebase/firebase';
 import ImageCropper from './imageCropper';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
 //= ==== Dev ===== //
@@ -422,7 +425,11 @@ const UploadFileForm = () => {
       }
       </FormGroup>
 
-      <p><Link to={{pathname: '/', state: { prevPath: window.location.pathname }}}>Back To Home</Link></p>
+      <Button className="mt-3">
+        <Link className="back-navigation" to={{pathname: '/', state: { prevPath: window.location.pathname }}}>
+          <FontAwesomeIcon icon={faAngleLeft} /> Home
+        </Link>
+      </Button>
 
     </Container>
   );

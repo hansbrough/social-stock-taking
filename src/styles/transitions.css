@@ -4,6 +4,7 @@
 
 .swipe-container {
   position: absolute;
+  left:0;
 }
 
 .forward-enter {
