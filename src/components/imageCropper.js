@@ -12,7 +12,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo } from '@fortawesome/free-solid-svg-icons';
 
 const ImageCropper = (
-  {src}
+  {
+    src,
+    save,
+    eventConnector = () => {},
+  }
 ) => {
   const dispatch = useDispatch();
   const [croppedImageUrl, setCroppedImageUrl] = useState();
@@ -38,15 +42,19 @@ const ImageCropper = (
       });
       // Create the cropper instance
       cropper.current = new Cropper(imageElement.current);
+      //
+      eventConnector(imageElement.current);
     }
   },[imageElement])
 
   // save croppedImage URL to store for use by other components
+  // avoid *excessive store operations* by watching for 'save' prop passed in from parent
+  // else actions dispatched multiple times as user drags cropping tool.
   useEffect(() => {
-    if(croppedImageUrl) {
+    if(croppedImageUrl && save) {
       dispatch(saveCroppedImage({ id: 'me', imageDataURL: croppedImageUrl }))
     }
-  },[croppedImageUrl]);
+  },[croppedImageUrl, save]);
 
   const rotateLeft = evt => {
     cropper && cropper.current.rotate(-2)

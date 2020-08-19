@@ -4,10 +4,19 @@ export const croppedImagesSlice = createSlice({
   name: 'croppedImages',
   initialState: [],
   reducers: {
-    save: (state, action) => {
+    upsert: (state, action) => {
       if(action.payload) {
         const { imageDataURL, id } = action.payload;
-        state.push({id, imageDataURL});
+        if(!state.length) {
+          state.push({id, imageDataURL});
+        } else {
+          state.map(obj => {
+            if(obj.id === id) {
+              obj.imageDataURL = imageDataURL;
+            }
+            return obj
+          });
+        }
       }
     },
     reset: (state, action) => {
@@ -16,7 +25,7 @@ export const croppedImagesSlice = createSlice({
   }
 })
 
-export const { save:saveCroppedImage, reset:resetCroppedImage } = croppedImagesSlice.actions;
+export const { upsert:saveCroppedImage, reset:resetCroppedImage } = croppedImagesSlice.actions;
 
 export const selectCroppedImages = state => state.croppedImages;
 

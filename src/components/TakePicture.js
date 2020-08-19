@@ -56,7 +56,6 @@ const TakePicture = () => {
   }
 
   const takePicture = async () => {
-    console.log("takePicture")
     // Get the exact size of the video element.
     const width = videoElem.current.videoWidth;
     const height = videoElem.current.videoHeight;
@@ -87,6 +86,7 @@ const TakePicture = () => {
   return (
     <>
       <h1 className="ml-3">Take a Picture</h1>
+      <p className="ml-3">Frame the plant with it's label visible.</p>
       <div className="original-picture">
         {!originalImages.length
           && (
