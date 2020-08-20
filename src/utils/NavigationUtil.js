@@ -7,6 +7,7 @@ const workflow = {
   '/cropPicture'    : 2,
   '/getPictureText' : 3,
   '/setPlace'       : 4,
+  '/finish'         : 5,
 };
 
 // determine direction of workflow navigation

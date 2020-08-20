@@ -8,6 +8,8 @@ import UploadFileForm from './components/UploadFileForm';
 import TakePicture from './components/TakePicture';
 import CropPicture from './components/CropPicture';
 import OCRPicture from './components/OCRPicture';
+import SetPlace from './components/SetPlace';
+import Finish from './components/Finish';
 
 import { getNavigationDirection } from './utils/NavigationUtil';
 import './styles/transitions.css';
@@ -36,6 +38,8 @@ function App() {
                   <Route exact path="/takePicture" component={TakePicture} />
                   <Route exact path="/cropPicture" component={CropPicture} />
                   <Route exact path="/getPictureText" component={OCRPicture} />
+                  <Route exact path="/setPlace" component={SetPlace} />
+                  <Route exact path="/finish" component={Finish} />
                 </Switch>
               </div>
             </CSSTransition>

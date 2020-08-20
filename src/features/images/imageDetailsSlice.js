@@ -13,7 +13,7 @@ export const imageDetailsSlice = createSlice({
           state.push({id, pid, latinName, commonName, price});
         } else {
           //console.log("...update")
-          state.map(obj => {
+          return state.map(obj => {
             if(obj.id === id) {
               //console.log("......updating")
               return { ...obj, pid, latinName, commonName, price };

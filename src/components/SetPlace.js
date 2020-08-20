@@ -1,88 +1,99 @@
+/*global google*/
 import React, {useState, useEffect, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
-import { createWorker } from 'tesseract.js';
-import { Container, Button, ButtonGroup, Progress } from 'reactstrap';
+import {
+  Container, Button, ButtonGroup,
+  Spinner, FormGroup, Input
+} from 'reactstrap';
+import Select from 'react-select';
 //= ==== Components ===== //
 
 //import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
-import { selectCroppedImages } from '../features/images/croppedImagesSlice';
-import { selectProcessedImages, saveProcessedImage } from '../features/images/processedImagesSlice';
+import { selectOriginalImages } from '../features/images/originalImagesSlice';
+import { saveImageLocation } from '../features/images/imageLocationSlice';
+
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
-const OCRPicture = () => {
+const SetPlace = () => {
   const dispatch = useDispatch();
-  const croppedImages = useSelector(selectCroppedImages);
-  const processedImages = useSelector(selectProcessedImages);
+  const originalImages  = useSelector(selectOriginalImages);
 
-  const [ocr, setOcr] = useState();
-  const [ocrStarted, setOcrStarted] = useState();
-  const [ocrProgress, setOcrProgress] = useState();
+  const [position, setPosition] = useState();
+  const [placeHint, setPlaceHint] = useState();
+  const [place, setPlace] = useState();
+  const [places, setPlaces] = useState();
+  const [placeSearching, setPlaceSearching] = useState();
+  const [placesServiceResponse, setPlacesServiceResponse] = useState();
 
-  const canvasElem      = useRef(null);
-  const ocrTextareaElem = useRef(null);
+  // create a version of google's places service to make api calls on our behalf
+  const placesService = new google.maps.places.PlacesService(document.createElement('div'))
 
-  // Caman is global object installed via a library's script tag
-  const Caman = window.Caman;
-
-  // do something once cropped image has been pre-processed
+  // do once places known
   useEffect(() => {
-    processedImages.length && runOCR(processedImages[0].imageDataURL);
-  },[processedImages]);
+    if (places) {
+      setPlace(places[0]);
+    }
+  },[places]);
 
-  // attempt to make image more readable by OCR
-  const preProcessOCRImage = () => {
-    console.log("preProcessOCRImage")
-    Caman('#filteredImage', croppedImages[0].imageDataURL, function() {
-          this.greyscale();
-          this.sharpen(100);
-          //this.threshold(80);
-          //this.contrast(60)
-          //this.stackBlur(1);
-          this.render(function(){
-            dispatch(saveProcessedImage({ id: 'me', imageDataURL: this.toBase64() }));
-          });
-        });
+  // do something once ...
+  useEffect(() => {
+
+  },[]);
+
+  // store the user entered place hint
+  const handlePlaceHintChange = evt => {
+    setPlaceHint(evt.target.value);
   }
 
-  //
-  const worker = createWorker({
-    logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
-  });
-
-  const runOCR = async (imageDataUrl) => {
-    console.log("runOCR");
-    setOcrStarted(true);
-    await worker.load();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(imageDataUrl);
-    setOcr(text);
-    setOcrStarted(false);
-  };
-
-  const getImageText = evt => {
-    preProcessOCRImage();
+  const handlePlaceSelectChange = selectedOption => {
+    console.log("handlePlaceSelectChange:",selectedOption)
+    setPlace(selectedOption);
+    //console.log("...placesServiceResponse:",placesServiceResponse);
+    const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
+    console.log("...position:",position);
+    console.log("...selectedPlaceDetails:",selectedPlaceDetails);
+    // note: GeolocationCoordinates interface doesnt support spread syntax :(
+    const payload = { id:'me', lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
+    console.log("...payload:",payload)
+    dispatch(saveImageLocation(payload));
   }
 
-  // const uploadToCloud = () => {
-  //   const uploadTask = storage.ref(`/test/selfie1.png`).putString(originalImages[0].imageDataURL, 'data_url');
-  //   uploadTask.on('state_changed',
-  //   (snapShot) => {
-  //     //takes a snap shot of the progress as it is happening
-  //     console.log(snapShot)
-  //   }, (err) => {
-  //     //catches the errors
-  //     console.log(err)
-  //   })
-  // }
+  const handleFindLocationClick = evt => {
+    console.log("handleFindLocationClick placeHint:",placeHint);
+    setPlaceSearching(true);
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log("..geo position:",position.coords);
+      setPosition(position);
+      // use position to find a 'place' via google maps
+      placesService.findPlaceFromQuery({
+        query: placeHint,
+        locationBias: { lat: position.coords.latitude, lng: position.coords.longitude },
+        fields:['place_id','name','formatted_address'],
+      }, places => {
+        console.log("gmaps places result:",places);
+        setPlacesServiceResponse(places);
+        setPlaces(places && places.map(place => {
+          return {value: place.place_id, label: `${place.name}, ${place.formatted_address}`}
+        }));
 
-  const handleOcrInputChange = evt => {
-    setOcr(evt.target.value);
+        if (places && places.length) {
+          if(places.length === 1) {
+            // show a single result
+            places[0].name && setPlace(`${places[0].name}, ${places[0].formatted_address}`);
+          } else {
+            // display selector
+          }
+        } else {
+          // no results
+        }
+        setPlaceSearching(false);
+      });
+    });
   }
 
   return (
@@ -90,59 +101,58 @@ const OCRPicture = () => {
       <h1>Set Place</h1>
       <p>Where did you find this plant?</p>
       <div className="original-picture">
-
-        <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
-          {!!croppedImages.length && <img className="preview-img" alt="" src={croppedImages[0].imageDataURL} />}
-
-          <canvas id="filteredImage" className="d-none"></canvas>
-          {!!croppedImages.length
-            && (
-              <ButtonGroup className="mt-2 w-100" size="lg">
-                <Button onClick={getImageText}>
-                  <FontAwesomeIcon icon={faFileAlt} /> Get Text
-                </Button>
-              </ButtonGroup>
-            )}
+          {!!originalImages.length && <img className="preview-img" alt="" src={originalImages[0].imageDataURL} />}
         </div>
       </div>
 
-      <section className="ocr-preview w-100">
-      {ocr &&
-        (
-          <label>
-            Here's a best guess at the text in the image.<br/>
-            <input
-              className="ocr-of-snapshot p-2 w-50"
-              type="textarea"
-              value={ocr}
-              style={{minHeight:'10rem'}}
-              onChange={handleOcrInputChange}
-              ref={ocrTextareaElem}
+      <FormGroup className="mt-3">
+        <label className="w-100">
+          <span className="d-inline-block mb-2"><b>Give us a hint</b> - enter some or all of the store name</span>
+          <Input
+            className="p-2 mb-3"
+            type="text"
+            onChange={handlePlaceHintChange}
+            placeholder="Enter a store name hint"
+          />
+        </label>
+        <Button
+          color="primary"
+          className="d-block mb-3"
+          disabled={!placeHint}
+          onClick={handleFindLocationClick}
+        >
+          {!placeSearching && (<span>Find your location</span>)}
+          {placeSearching
+            && (
+              <><Spinner size="sm" color="light" /> Searching...</>
+            )
+          }
+        </Button>
+        <div id="placesContainer"></div>
+        {places &&
+          (
+            <>
+            <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching store</span>
+            <Select
+              value={place}
+              onChange={handlePlaceSelectChange}
+              options={places}
             />
-          </label>
-        )
-      }
-      {ocrStarted && !ocrProgress &&
-        (
-          <span>Preparing Image...</span>
-        )
-      }
-      {ocrStarted && ocrProgress &&
-        (
-          <Progress max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
-        )
-      }
-      </section>
+            </>
+          )
+        }
+      </FormGroup>
+
       <ButtonGroup className="my-3 w-100">
         <Button>
           <Link className="back-navigation" to={{pathname: '/getPictureText', state: { prevPath: window.location.pathname }}}>
             <FontAwesomeIcon icon={faAngleLeft} /> Back
           </Link>
         </Button>
-        <Button>
+        <Button disabled={!place} color="primary">
           <Link className="back-navigation" to={{pathname: '/save', state: { prevPath: window.location.pathname }}}>
-            Save <FontAwesomeIcon icon={faAngleRight} />
+            Finish <FontAwesomeIcon icon={faAngleRight} />
           </Link>
         </Button>
       </ButtonGroup>
@@ -150,4 +160,4 @@ const OCRPicture = () => {
   );
 };
 
-export default OCRPicture;
+export default SetPlace;

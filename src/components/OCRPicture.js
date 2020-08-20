@@ -57,6 +57,16 @@ const OCRPicture = () => {
     }
   },[aloePlants, plantIds]);
 
+  // if imageDetails (from store) updated
+  useEffect(() => {
+    if(imageDetails.length) {
+      console.log("imageDetails updated:",imageDetails);
+      const {latinName:latin_name, commonName:aka, price} = imageDetails[0];
+      setCurrentPlant({latin_name,aka});
+      setPrice(price);
+    }
+  },[imageDetails]);
+
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
     console.log("preProcessOCRImage")
@@ -203,7 +213,7 @@ const OCRPicture = () => {
       }
       {ocrStarted && !ocrProgress &&
         (
-          <span className="d-block"><FontAwesomeIcon icon={faCog} className="fa-spin" /> Preparing Image...</span>
+          <span className="d-block"><FontAwesomeIcon icon={faCog} className="fa-spin" /> Preparing image for processing...</span>
         )
       }
       {ocrStarted && !!ocrProgress &&
@@ -215,7 +225,7 @@ const OCRPicture = () => {
         (
         <div>
           <Button color="primary" onClick={handleFindMatchingClick} className="mr-2">
-            <FontAwesomeIcon icon={faSearch} /> Find Matching Plant
+            <FontAwesomeIcon icon={faSearch} /> Find a Matching Plant
           </Button>
         </div>
       )}
