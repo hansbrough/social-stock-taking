@@ -29,11 +29,12 @@ const ImageCropper = (
       imageElement.current.addEventListener('ready', function () {
         //console.log("!! ready:",this.cropper);
         cropper.current.crop();
+        const canvasElem = cropper.current.getCroppedCanvas();
+        setCroppedImageUrl(canvasElem.toDataURL("image/png"))
       });
       imageElement.current.addEventListener('crop', (evt) => {
         //console.log("!! crop:",evt.detail);
-        const canvasElem = cropper.current.getCroppedCanvas();
-        setCroppedImageUrl(canvasElem.toDataURL("image/png"))
+        // updating onscreen img on every crop event is very sloooooow
       });
       imageElement.current.addEventListener('cropend', (evt) => {
         //console.log("!! cropend:",evt.detail);

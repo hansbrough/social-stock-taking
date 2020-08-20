@@ -3,12 +3,12 @@ import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 //= ==== Components ===== //
-
+//= ==== Store ===== //
 import {
   save, reset,
   selectOriginalImages,
 } from '../features/images/originalImagesSlice';
-
+//= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
@@ -25,11 +25,11 @@ const TakePicture = () => {
   });
 
   // do something once image url has been updated
-  useEffect(() => {
-    if(originalImages) {
-      console.log("useEffect: originalImages updated:",originalImages);
-    }
-  },[originalImages]);
+  // useEffect(() => {
+  //   if(originalImages) {
+  //     console.log("useEffect: originalImages updated:",originalImages);
+  //   }
+  // },[originalImages]);
 
   const startCamera = async () => {
     try {
