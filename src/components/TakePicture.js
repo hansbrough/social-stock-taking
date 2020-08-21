@@ -1,13 +1,13 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 //= ==== Components ===== //
+//= ==== Utils ===== //
+import { makeWorkflowUid } from '../utils/SessionUtil';
 //= ==== Store ===== //
-import {
-  save, reset,
-  selectOriginalImages,
-} from '../features/images/originalImagesSlice';
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { save, reset, selectOriginalImages } from '../features/images/originalImagesSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
@@ -16,20 +16,24 @@ import '../styles/Selfie.css';
 const TakePicture = () => {
   const dispatch        = useDispatch();
   const originalImages  = useSelector(selectOriginalImages);
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
   const videoElem       = useRef(null);
   const canvasElem      = useRef(null);
+
   const constraints     = { facingMode: 'environment' };
+  //
+
+  useEffect(() => {
+    console.log("useEffect workflow updated:",currentWorkflow);
+    if( currentWorkflow && !currentWorkflow.wid ) {
+      // console.log("...currentWorkflow needs an id!");
+      dispatch(saveCurrentWorkflow({ wid: makeWorkflowUid() }));
+    }
+  },[currentWorkflow, dispatch]);
 
   useEffect(() => {
     startCamera();
   });
-
-  // do something once image url has been updated
-  // useEffect(() => {
-  //   if(originalImages) {
-  //     console.log("useEffect: originalImages updated:",originalImages);
-  //   }
-  // },[originalImages]);
 
   const startCamera = async () => {
     try {
@@ -75,7 +79,8 @@ const TakePicture = () => {
 
     // Set the dataURL as source of an image element, showing the captured photo.
     stopCamera();
-    dispatch(save({id:'me',imageDataURL}));
+    dispatch(save({ id: currentWorkflow.wid, imageDataURL }));
+    dispatch(saveCurrentWorkflow({ completed: { takePicture: true }}));
   }
 
   const backToCamera = () => {

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
 //= ==== Store ===== //
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectAloes } from '../features/plants/plantsSlice';
 import { selectCroppedImages } from '../features/images/croppedImagesSlice';
 import { selectProcessedImages, saveProcessedImage } from '../features/images/processedImagesSlice';
@@ -19,6 +20,7 @@ import '../styles/Selfie.css';
 
 const OCRPicture = () => {
   const dispatch = useDispatch();
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
   const aloePlants = useSelector(selectAloes);
   const croppedImages = useSelector(selectCroppedImages);
   const processedImages = useSelector(selectProcessedImages);
@@ -77,7 +79,7 @@ const OCRPicture = () => {
           //this.contrast(60)
           //this.stackBlur(1);
           this.render(function(){
-            dispatch(saveProcessedImage({ id: 'me', imageDataURL: this.toBase64() }));
+            dispatch(saveProcessedImage({ id: currentWorkflow.wid, imageDataURL: this.toBase64() }));
           });
         });
   }
@@ -165,9 +167,9 @@ const OCRPicture = () => {
   // persist plant details when user verifies they are correct.
   const handleSavePlantClick = () => {
     console.log("handleSavePlantClick currentPlant:",currentPlant);
-    console.log("...",{ id:'me', price, ...currentPlant})
     setPlantSaved(true);
-    dispatch(saveImageDetails({ id:'me', price, ...currentPlant}))
+    dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
+    dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));
   }
 
   return (

@@ -1,13 +1,13 @@
 import React, {useState, useRef, useEffect} from "react";
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Cropper from "cropperjs";
 import { Button, ButtonGroup } from 'reactstrap';
-
+//= ==== Store ===== //
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { saveCroppedImage } from '../features/images/croppedImagesSlice';
-
+//= ==== Style ===== //
 import "cropperjs/dist/cropper.min.css";
 import "../styles/imagecropper.css";
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo } from '@fortawesome/free-solid-svg-icons';
 
@@ -19,6 +19,7 @@ const ImageCropper = (
   }
 ) => {
   const dispatch = useDispatch();
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
   const [croppedImageUrl, setCroppedImageUrl] = useState();
   const imageElement = useRef(null);
   const cropper = useRef(null);// set as ref to make available outside 'useEffect'
@@ -53,7 +54,7 @@ const ImageCropper = (
   // else actions dispatched multiple times as user drags cropping tool.
   useEffect(() => {
     if(croppedImageUrl && save) {
-      dispatch(saveCroppedImage({ id: 'me', imageDataURL: croppedImageUrl }))
+      dispatch(saveCroppedImage({ id: currentWorkflow.wid, imageDataURL: croppedImageUrl }))
     }
   },[croppedImageUrl, save]);
 

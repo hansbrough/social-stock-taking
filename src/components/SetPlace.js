@@ -11,6 +11,7 @@ import Select from 'react-select';
 
 //import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectOriginalImages } from '../features/images/originalImagesSlice';
 import { saveImageLocation } from '../features/images/imageLocationSlice';
 
@@ -21,6 +22,7 @@ import '../styles/Selfie.css';
 
 const SetPlace = () => {
   const dispatch = useDispatch();
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
   const originalImages  = useSelector(selectOriginalImages);
 
   const [position, setPosition] = useState();
@@ -51,23 +53,24 @@ const SetPlace = () => {
   }
 
   const handlePlaceSelectChange = selectedOption => {
-    console.log("handlePlaceSelectChange:",selectedOption)
+    //console.log("handlePlaceSelectChange:",selectedOption)
     setPlace(selectedOption);
     //console.log("...placesServiceResponse:",placesServiceResponse);
     const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
-    console.log("...position:",position);
-    console.log("...selectedPlaceDetails:",selectedPlaceDetails);
+    //console.log("...position:",position);
+    //console.log("...selectedPlaceDetails:",selectedPlaceDetails);
     // note: GeolocationCoordinates interface doesnt support spread syntax :(
-    const payload = { id:'me', lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
-    console.log("...payload:",payload)
+    const payload = { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
+    //console.log("...payload:",payload)
     dispatch(saveImageLocation(payload));
+    dispatch(saveCurrentWorkflow({ completed: { setPlace: true }}));
   }
 
   const handleFindLocationClick = evt => {
-    console.log("handleFindLocationClick placeHint:",placeHint);
+    //console.log("handleFindLocationClick placeHint:",placeHint);
     setPlaceSearching(true);
     navigator.geolocation.getCurrentPosition((position) => {
-      console.log("..geo position:",position.coords);
+      //console.log("..geo position:",position.coords);
       setPosition(position);
       // use position to find a 'place' via google maps
       placesService.findPlaceFromQuery({
@@ -151,7 +154,7 @@ const SetPlace = () => {
           </Link>
         </Button>
         <Button disabled={!place} color="primary">
-          <Link className="back-navigation" to={{pathname: '/save', state: { prevPath: window.location.pathname }}}>
+          <Link className="back-navigation" to={{pathname: '/finish', state: { prevPath: window.location.pathname }}}>
             Finish <FontAwesomeIcon icon={faAngleRight} />
           </Link>
         </Button>

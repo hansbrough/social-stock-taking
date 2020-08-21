@@ -1,10 +1,11 @@
 import React, {useRef, useState} from 'react';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button, ButtonGroup, Container } from 'reactstrap';
 //= ==== Components ===== //
 import ImageCropper from './imageCropper';
 //= ==== Store ===== //
+import { saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectOriginalImages } from '../features/images/originalImagesSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,12 +13,15 @@ import { faAngleLeft, faAngleRight, faThumbsUp } from '@fortawesome/free-solid-s
 import '../styles/Selfie.css';
 
 const CropPicture = () => {
+  const dispatch        = useDispatch();
   const originalImages  = useSelector(selectOriginalImages);
+
   const [saveClicked, setSaveClicked] = useState();
   const canvasElem      = useRef(null);
 
   const handleSaveClick = evt => {
     setSaveClicked(true);
+    dispatch(saveCurrentWorkflow({ completed: { cropPicture: true }}));
   };
 
   // provided to the cropper component which hands back a reference to it's imageElem.

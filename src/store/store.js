@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import currentWorkflowReducer from '../features/currentWorkflowSlice';
 import plantsReducer from '../features/plants/plantsSlice';
 import originalImagesReducer from '../features/images/originalImagesSlice';
 import croppedImagesReducer from '../features/images/croppedImagesSlice';
@@ -8,6 +9,7 @@ import imageLocationReducer from '../features/images/imageLocationSlice';
 
 export default configureStore({
   reducer: {
+    currentWorkflow: currentWorkflowReducer,
     plants: plantsReducer,
     originalImages: originalImagesReducer,
     croppedImages: croppedImagesReducer,
