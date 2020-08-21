@@ -40,10 +40,6 @@ const OCRPicture = () => {
   // Caman is global object installed via a library's script tag
   const Caman = window.Caman;
 
-  useEffect(() => {
-    console.log("imageDetails updated:",imageDetails)
-  },[imageDetails]);
-
   // do something once cropped image has been pre-processed
   useEffect(() => {
     processedImages.length && runOCR(processedImages[0].imageDataURL);
@@ -62,7 +58,7 @@ const OCRPicture = () => {
   // if imageDetails (from store) updated
   useEffect(() => {
     if(imageDetails.length) {
-      console.log("imageDetails updated:",imageDetails);
+      //console.log("imageDetails updated:",imageDetails);
       const {latinName:latin_name, commonName:aka, price} = imageDetails[0];
       setCurrentPlant({latin_name,aka});
       setPrice(price);
@@ -71,7 +67,7 @@ const OCRPicture = () => {
 
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
-    console.log("preProcessOCRImage")
+    //console.log("preProcessOCRImage")
     Caman('#filteredImage', croppedImages[0].imageDataURL, function() {
           this.greyscale();
           this.sharpen(100);
@@ -90,7 +86,7 @@ const OCRPicture = () => {
   });
 
   const runOCR = async (imageUrl) => {
-    console.log("runOCR");
+    //console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -144,10 +140,10 @@ const OCRPicture = () => {
     let match = RegexConstants.ALOE_KEYWORDS.exec(ocrText);
     // iterate through all matches looking for named groups
     while (match != null) {
-      console.log("match.groups:",match.groups)
+      //console.log("match.groups:",match.groups)
       if(match) {
         candidates = [...new Set(candidates.concat(Object.values(match.groups)))];
-        console.log("candidates:",candidates);
+        //console.log("candidates:",candidates);
       }
       match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
     }
@@ -166,7 +162,7 @@ const OCRPicture = () => {
 
   // persist plant details when user verifies they are correct.
   const handleSavePlantClick = () => {
-    console.log("handleSavePlantClick currentPlant:",currentPlant);
+    //console.log("handleSavePlantClick currentPlant:",currentPlant);
     setPlantSaved(true);
     dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
     dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));

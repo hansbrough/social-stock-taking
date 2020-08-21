@@ -24,7 +24,7 @@ const TakePicture = () => {
   //
 
   useEffect(() => {
-    console.log("useEffect workflow updated:",currentWorkflow);
+    //console.log("useEffect workflow updated:",currentWorkflow);
     if( currentWorkflow && !currentWorkflow.wid ) {
       // console.log("...currentWorkflow needs an id!");
       dispatch(saveCurrentWorkflow({ wid: makeWorkflowUid() }));

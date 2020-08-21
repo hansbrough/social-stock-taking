@@ -19,5 +19,6 @@ export const originalImagesSlice = createSlice({
 export const { save, reset } = originalImagesSlice.actions;
 
 export const selectOriginalImages = state => state.originalImages;
+export const selectOriginalImageById = (state, id) => state.originalImages.find(img => img.id === id);
 
 export default originalImagesSlice.reducer

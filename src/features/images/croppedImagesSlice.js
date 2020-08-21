@@ -28,5 +28,6 @@ export const croppedImagesSlice = createSlice({
 export const { upsert:saveCroppedImage, reset:resetCroppedImage } = croppedImagesSlice.actions;
 
 export const selectCroppedImages = state => state.croppedImages;
+export const selectCroppedImageById = (state, id) => state.croppedImages.find(img => img.id === id);
 
 export default croppedImagesSlice.reducer

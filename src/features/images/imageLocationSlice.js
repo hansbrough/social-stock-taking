@@ -32,5 +32,6 @@ export const imageLocationSlice = createSlice({
 export const { upsert:saveImageLocation, reset:resetImageLocation } = imageLocationSlice.actions;
 
 export const selectImageLocation = state => state.imageLocation;
+export const selectImageLocationById = (state, id) => state.imageLocation.find(img => img.id === id);
 
 export default imageLocationSlice.reducer

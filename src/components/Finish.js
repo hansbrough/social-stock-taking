@@ -1,17 +1,17 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Button, ButtonGroup } from 'reactstrap';
+import { Container, Button, ButtonGroup, Input, FormGroup, Spinner } from 'reactstrap';
 //= ==== Components ===== //
 import {storage} from '../firebase/firebase';
 
 //import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
-import { saveCurrentWorkflow } from '../features/currentWorkflowSlice';
-import { selectOriginalImages } from '../features/images/originalImagesSlice';
-import { selectCroppedImages } from '../features/images/croppedImagesSlice';
-import { selectImageDetails } from '../features/images/imageDetailsSlice';
-import { selectImageLocation } from '../features/images/imageLocationSlice';
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { selectOriginalImageById } from '../features/images/originalImagesSlice';
+import { selectCroppedImageById } from '../features/images/croppedImagesSlice';
+import { selectImageDetailsById, saveImageDetails } from '../features/images/imageDetailsSlice';
+import { selectImageLocationById } from '../features/images/imageLocationSlice';
 
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,46 +20,123 @@ import '../styles/Selfie.css';
 
 const Finish = () => {
   const dispatch = useDispatch();
-  const originalImages  = useSelector(selectOriginalImages);
-  const croppedImages   = useSelector(selectCroppedImages);
-  const imageLocation   = useSelector(selectImageLocation);
-  const imageDetails    = useSelector(selectImageDetails);
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
+  //NOTE: these essentially act as reselectors. better way to take advantage of memoization?
+  const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
+  const croppedImage    = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
+  const imageLocation   = useSelector((state) => selectImageLocationById(state, currentWorkflow.wid));
+  const imageDetail     = useSelector((state) => selectImageDetailsById(state, currentWorkflow.wid));
 
+  const [savingToCloud, setSavingToCloud] = useState();
+  const [savedToCloud, setSavedToCloud] = useState();
 
   // do something once ...
   useEffect(() => {
+    console.log("originalImage:",originalImage)
+  },[originalImage]);
 
-  },[]);
-
+  //
   const uploadToCloud = () => {
-    const uploadTask = storage.ref(`/test/selfie1.png`).putString(originalImages[0].imageDataURL, 'data_url');
-
-    //TODO: fire dispatch only once upload complete... not here
-    dispatch(saveCurrentWorkflow({ completed: { finish: true }}));
-
-    uploadTask.on('state_changed',
-    (snapShot) => {
-      //takes a snap shot of the progress as it is happening
-      console.log(snapShot)
-    }, (err) => {
-      //catches the errors
-      console.log(err)
-    })
+    setSavingToCloud(true);
+    // create storage refs for images we want to save
+    const files = [
+      { ref: storage.ref(`/plant-images/${currentWorkflow.wid}_orig.png`), dataUrl:originalImage.imageDataURL },
+      { ref: storage.ref(`/plant-images/${currentWorkflow.wid}_crop.png`), dataUrl:croppedImage.imageDataURL }
+    ];
+    // first, save all to cloud. then get remote urls for each image.
+    // when done update local state.
+    Promise.all(
+      files.map((file) => {
+        return file.ref.putString(file.dataUrl, 'data_url');
+      })
+    ).then(([origImgSnapshot, croppedImgSnapshot]) => {
+        //console.log("finished uploads! origImgSnapshot:",origImgSnapshot,"\n croppedImgSnapshot:",croppedImgSnapshot);
+        // use list of snapshot refs to get remote img urls.
+        return Promise.all(
+          [origImgSnapshot, croppedImgSnapshot].map(snapshot => snapshot.ref.getDownloadURL())
+        ).then(([origImgUrl, croppedImgUrl]) => {
+          //console.log("now save these: origImgUrl:",origImgUrl,"\n croppedImgUrl:",croppedImgUrl);
+          dispatch(saveImageDetails({ id:currentWorkflow.wid, origImgUrl, croppedImgUrl }))
+          return;
+        })
+      }
+    )
+    .catch(err =>
+      console.warn(err)
+    ).finally(() => {
+      console.log("finally statement")
+      dispatch(saveCurrentWorkflow({ completed: { finish: true }}));
+      setSavingToCloud(false);
+      setSavedToCloud(true);
+    });
   }
 
   return (
     <Container className="ocr-picture-screen">
       <h1>Finish</h1>
       <p>Double check the details and save to the cloud.</p>
-      <div className="original-picture">
-        <div className="preview">
-          {!!originalImages.length && <img className="preview-img" alt="" src={originalImages[0].imageDataURL} />}
-        </div>
+      <div className="mb-3">
+        <h4>Original Image</h4>
+        {!!originalImage && <img className="preview-img" alt="" src={originalImage.imageDataURL} />}
+      </div>
+      <div className="cropped-picture">
+        <h4>Cropped Image</h4>
+        {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
       </div>
 
-      <Button className="btn download-btn mt-3" color="primary" onClick={uploadToCloud}>
-        <FontAwesomeIcon icon={faCloudUploadAlt} /> Upload
-      </Button>
+      <FormGroup className="mt-3">
+        <h4>Plant Details</h4>
+          <Input
+            className="p-2 mb-2"
+            value={imageDetail.latinName}
+            type="text"
+            disabled
+          />
+          <Input
+            className="p-2 mb-2"
+            value={imageDetail.commonName}
+            type="text"
+            disabled
+          />
+          <Input
+            className="p-2 mb-2"
+            value={imageDetail.price}
+            type="text"
+            disabled
+          />
+        <h4>Place Details</h4>
+          <Input
+            className="p-2 mb-2"
+            value={imageLocation.name}
+            type="text"
+            disabled
+          />
+          <Input
+            className="p-2 mb-2"
+            value={imageLocation.address}
+            type="text"
+            disabled
+          />
+        <Button className="btn download-btn mt-3" color="primary" onClick={uploadToCloud} disabled={savingToCloud || savedToCloud}>
+          {!savingToCloud && !savedToCloud
+            && (
+              <>Looks Good. Save it. <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+            )
+          }
+          {savingToCloud
+            && (
+              <>Saving it... <Spinner size="sm" color="light" /></>
+            )
+          }
+          {!savingToCloud && savedToCloud
+            && (
+              <>All Saved! <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+            )
+          }
+        </Button>
+      </FormGroup>
+
+
 
       <ButtonGroup className="my-3 w-100">
         <Button>
@@ -67,7 +144,7 @@ const Finish = () => {
             <FontAwesomeIcon icon={faAngleLeft} /> Back
           </Link>
         </Button>
-        <Button>
+        <Button disabled={!savedToCloud}>
           <Link className="back-navigation" to={{pathname: '/', state: { prevPath: window.location.pathname }}}>
             Home <FontAwesomeIcon icon={faAngleRight} />
           </Link>

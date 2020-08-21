@@ -78,7 +78,7 @@ const SetPlace = () => {
         locationBias: { lat: position.coords.latitude, lng: position.coords.longitude },
         fields:['place_id','name','formatted_address'],
       }, places => {
-        console.log("gmaps places result:",places);
+        //console.log("gmaps places result:",places);
         setPlacesServiceResponse(places);
         setPlaces(places && places.map(place => {
           return {value: place.place_id, label: `${place.name}, ${place.formatted_address}`}
