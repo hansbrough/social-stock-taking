@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import Cropper from "cropperjs";
 import { Button, ButtonGroup } from 'reactstrap';
 //= ==== Store ===== //
-import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { selectCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { saveCroppedImage } from '../features/images/croppedImagesSlice';
 //= ==== Style ===== //
 import "cropperjs/dist/cropper.min.css";
@@ -47,7 +47,7 @@ const ImageCropper = (
       //
       eventConnector(imageElement.current);
     }
-  },[imageElement])
+  },[imageElement, eventConnector]);
 
   // save croppedImage URL to store for use by other components
   // avoid *excessive store operations* by watching for 'save' prop passed in from parent
