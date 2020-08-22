@@ -6,9 +6,9 @@ import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectAloes } from '../features/plants/plantsSlice';
-import { selectCroppedImages } from '../features/images/croppedImagesSlice';
-import { selectProcessedImages, saveProcessedImage } from '../features/images/processedImagesSlice';
-import { selectImageDetails, saveImageDetails } from '../features/images/imageDetailsSlice';
+import { selectCroppedImageById } from '../features/images/croppedImagesSlice';
+import { selectProcessedImageById, saveProcessedImage } from '../features/images/processedImagesSlice';
+import { selectImageDetailsById, saveImageDetails } from '../features/images/imageDetailsSlice';
 //= ==== Constants ===== //
 import RegexConstants from '../constants/RegexConstants';
 //= ==== Utils ===== //
@@ -22,9 +22,9 @@ const OCRPicture = () => {
   const dispatch = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const aloePlants = useSelector(selectAloes);
-  const croppedImages = useSelector(selectCroppedImages);
-  const processedImages = useSelector(selectProcessedImages);
-  const imageDetails = useSelector(selectImageDetails);
+  const croppedImage = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
+  const processedImage = useSelector((state) => selectProcessedImageById(state, currentWorkflow.wid));
+  const imageDetails = useSelector((state) => selectImageDetailsById(state, currentWorkflow.wid));
 
   const [ocr, setOcr] = useState();
   const [ocrStarted, setOcrStarted] = useState();
@@ -42,8 +42,8 @@ const OCRPicture = () => {
 
   // do something once cropped image has been pre-processed
   useEffect(() => {
-    processedImages.length && runOCR(processedImages[0].imageDataURL);
-  },[processedImages]);
+    !!processedImage && runOCR(processedImage.imageDataURL);
+  },[processedImage]);
 
   // once list of matching plant id's has been updated
   useEffect(() => {
@@ -57,9 +57,9 @@ const OCRPicture = () => {
 
   // if imageDetails (from store) updated
   useEffect(() => {
-    if(imageDetails.length) {
+    if(!!imageDetails) {
       //console.log("imageDetails updated:",imageDetails);
-      const {latinName:latin_name, commonName:aka, price} = imageDetails[0];
+      const {latinName:latin_name, commonName:aka, price} = imageDetails;
       setCurrentPlant({latin_name,aka});
       setPrice(price);
     }
@@ -68,7 +68,7 @@ const OCRPicture = () => {
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
     //console.log("preProcessOCRImage")
-    Caman('#filteredImage', croppedImages[0].imageDataURL, function() {
+    Caman('#filteredImage', croppedImage.imageDataURL, function() {
           this.greyscale();
           this.sharpen(100);
           //this.threshold(80);
@@ -176,10 +176,10 @@ const OCRPicture = () => {
 
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
-          {!!croppedImages.length && <img className="preview-img" alt="" src={croppedImages[0].imageDataURL} />}
+          {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
 
           <canvas id="filteredImage" className="d-none"></canvas>
-          {!!croppedImages.length
+          {!!croppedImage
             && (
               <ButtonGroup className="mt-2 w-100" size="lg">
                 <Button onClick={getImageText}>

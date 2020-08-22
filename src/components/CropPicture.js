@@ -5,8 +5,8 @@ import { Button, ButtonGroup, Container } from 'reactstrap';
 //= ==== Components ===== //
 import ImageCropper from './imageCropper';
 //= ==== Store ===== //
-import { saveCurrentWorkflow } from '../features/currentWorkflowSlice';
-import { selectOriginalImages } from '../features/images/originalImagesSlice';
+import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { selectOriginalImageById } from '../features/images/originalImagesSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +14,8 @@ import '../styles/Selfie.css';
 
 const CropPicture = () => {
   const dispatch        = useDispatch();
-  const originalImages  = useSelector(selectOriginalImages);
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
+  const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
 
   const [saveClicked, setSaveClicked] = useState();
   const canvasElem      = useRef(null);
@@ -38,9 +39,9 @@ const CropPicture = () => {
       <div className="original-picture">
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
-          {!!originalImages.length
+          {!!originalImage
             && (
-              <ImageCropper src={originalImages[0].imageDataURL} save={saveClicked} eventConnector={handleCropperEvents} />
+              <ImageCropper src={originalImage.imageDataURL} save={saveClicked} eventConnector={handleCropperEvents} />
           )}
           <canvas id="filteredImage" className="d-none"></canvas>
         </div>

@@ -11,6 +11,7 @@ import CropPicture from './components/CropPicture';
 import OCRPicture from './components/OCRPicture';
 import SetPlace from './components/SetPlace';
 import Finish from './components/Finish';
+import Success from './components/Success';
 //= ==== Utils ===== //
 import { getNavigationDirection } from './utils/NavigationUtil';
 import { writePlacesApi } from './utils/KeysUtil';
@@ -26,7 +27,7 @@ function App() {
         const { location } = props;
         const { key } = location;
         const direction = getNavigationDirection(location);
-        console.log("direction:",direction);
+        //console.log("direction:",direction);
         return (
           <TransitionGroup>
             <CSSTransition
@@ -43,6 +44,7 @@ function App() {
                   <Route exact path="/getPictureText" component={OCRPicture} />
                   <Route exact path="/setPlace" component={SetPlace} />
                   <Route exact path="/finish" component={Finish} />
+                  <Route exact path="/success" component={Success} />
                 </Switch>
               </div>
             </CSSTransition>

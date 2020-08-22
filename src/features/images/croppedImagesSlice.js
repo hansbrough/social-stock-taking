@@ -5,16 +5,21 @@ export const croppedImagesSlice = createSlice({
   initialState: [],
   reducers: {
     upsert: (state, action) => {
+      //console.log("Crop upsert")
       if(action.payload) {
         const { imageDataURL, id } = action.payload;
-        if(!state.length) {
+        if(!state.length || !state.some(item => item.id === id)) {
+          //console.log("...insert")
           state.push({id, imageDataURL});
         } else {
-          state.map(obj => {
+          //console.log("...update")
+          // update item w/matching id or return item 'as is' if not a match.
+          return state.map(obj => {
             if(obj.id === id) {
-              obj.imageDataURL = imageDataURL;
+              //console.log("...found matching entry")
+              return { ...obj, imageDataURL };
             }
-            return obj
+            return obj;
           });
         }
       }

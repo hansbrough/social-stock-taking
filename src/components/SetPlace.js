@@ -12,7 +12,7 @@ import Select from 'react-select';
 //import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
-import { selectOriginalImages } from '../features/images/originalImagesSlice';
+import { selectOriginalImageById } from '../features/images/originalImagesSlice';
 import { saveImageLocation } from '../features/images/imageLocationSlice';
 
 //= ==== Style ===== //
@@ -23,7 +23,7 @@ import '../styles/Selfie.css';
 const SetPlace = () => {
   const dispatch = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
-  const originalImages  = useSelector(selectOriginalImages);
+  const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
 
   const [position, setPosition] = useState();
   const [placeHint, setPlaceHint] = useState();
@@ -105,7 +105,7 @@ const SetPlace = () => {
       <p>Where did you find this plant?</p>
       <div className="original-picture">
         <div className="preview">
-          {!!originalImages.length && <img className="preview-img" alt="" src={originalImages[0].imageDataURL} />}
+          {!!originalImage && <img className="preview-img" alt="" src={originalImage.imageDataURL} />}
         </div>
       </div>
 

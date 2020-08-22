@@ -15,18 +15,18 @@ export const imageDetailsSlice = createSlice({
           origImgUrl,
           croppedImgUrl
         } = action.payload;
-        //console.log("!upsert:",{ id, pid, latinName, commonName, price, origImgUrl, croppedImgUrl });
+        //console.log("Details upsert:",{ id, pid, latinName, commonName, price, origImgUrl, croppedImgUrl });
         //make new object w/out undefined values
         const updatesObj = Object.entries({ id, pid, latinName, commonName, price, origImgUrl, croppedImgUrl }).reduce((a,[k,v]) => (v === undefined ? a : (a[k]=v, a)), {})
         //console.log(".....updatesObj:",updatesObj)
-        if(!state.length) {
+        if(!state.length || !state.some(item => item.id === id)) {
           //console.log("...insert")
           state.push(updatesObj);
         } else {
           //console.log("...update")
           return state.map(obj => {
             if(obj.id === id) {
-              //console.log("......updating")
+              //console.log("......updating match")
               return { ...obj, ...updatesObj};
             }
             return obj

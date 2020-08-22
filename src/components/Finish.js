@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useHistory } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { Container, Button, ButtonGroup, Input, FormGroup, Spinner } from 'reactstrap';
 //= ==== Components ===== //
@@ -14,11 +15,12 @@ import { selectImageLocationById } from '../features/images/imageLocationSlice';
 
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight, faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const Finish = () => {
   const collectionRef = db.collection('spotting');
+  const history = useHistory();
   const dispatch = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   //NOTE: these essentially act as reselectors. better way to take advantage of memoization?
@@ -29,11 +31,6 @@ const Finish = () => {
 
   const [savingToCloud, setSavingToCloud] = useState();
   const [savedToCloud, setSavedToCloud] = useState();
-
-  // do something once ...
-  useEffect(() => {
-    console.log("originalImage:",originalImage)
-  },[originalImage]);
 
   //
   const uploadToCloud = () => {
@@ -72,6 +69,7 @@ const Finish = () => {
       dispatch(saveCurrentWorkflow({ completed: { finish: true }}));
       setSavingToCloud(false);
       setSavedToCloud(true);
+      window.setTimeout(history.push('/success'), 500);
     });
   }
 
@@ -88,69 +86,64 @@ const Finish = () => {
         {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
       </div>
 
-      <FormGroup className="mt-3">
-        <h4>Plant Details</h4>
-          <Input
-            className="p-2 mb-2"
-            value={imageDetail.latinName}
-            type="text"
-            disabled
-          />
-          <Input
-            className="p-2 mb-2"
-            value={imageDetail.commonName}
-            type="text"
-            disabled
-          />
-          <Input
-            className="p-2 mb-2"
-            value={imageDetail.price}
-            type="text"
-            disabled
-          />
-        <h4>Place Details</h4>
-          <Input
-            className="p-2 mb-2"
-            value={imageLocation.name}
-            type="text"
-            disabled
-          />
-          <Input
-            className="p-2 mb-2"
-            value={imageLocation.address}
-            type="text"
-            disabled
-          />
-        <Button className="btn download-btn mt-3" color="primary" onClick={uploadToCloud} disabled={savingToCloud || savedToCloud}>
-          {!savingToCloud && !savedToCloud
-            && (
-              <>Looks Good. Save it. <FontAwesomeIcon icon={faCloudUploadAlt} /></>
-            )
-          }
-          {savingToCloud
-            && (
-              <>Saving it... <Spinner size="sm" color="light" /></>
-            )
-          }
-          {!savingToCloud && savedToCloud
-            && (
-              <>All Saved! <FontAwesomeIcon icon={faCloudUploadAlt} /></>
-            )
-          }
-        </Button>
-      </FormGroup>
-
-
-
+      {imageDetail && imageLocation &&
+        (
+          <FormGroup className="mt-3">
+            <h4>Plant Details</h4>
+            <Input
+              className="p-2 mb-2"
+              value={imageDetail.latinName}
+              type="text"
+              disabled
+            />
+            <Input
+              className="p-2 mb-2"
+              value={imageDetail.commonName}
+              type="text"
+              disabled
+            />
+            <Input
+              className="p-2 mb-2"
+              value={imageDetail.price}
+              type="text"
+              disabled
+            />
+            <h4>Place Details</h4>
+            <Input
+              className="p-2 mb-2"
+              value={imageLocation.name}
+              type="text"
+              disabled
+            />
+            <Input
+              className="p-2 mb-2"
+              value={imageLocation.address}
+              type="text"
+              disabled
+            />
+            <Button className="btn download-btn mt-3" color="primary" onClick={uploadToCloud} disabled={savingToCloud || savedToCloud}>
+              {!savingToCloud && !savedToCloud
+                && (
+                  <>Looks Good. Save it. <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+                )
+              }
+              {savingToCloud
+                && (
+                  <>Saving it... <Spinner size="sm" color="light" /></>
+                )
+              }
+              {!savingToCloud && savedToCloud
+                && (
+                  <>All Saved! <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+                )
+              }
+            </Button>
+          </FormGroup>
+        )}
       <ButtonGroup className="my-3 w-100">
         <Button>
           <Link className="back-navigation" to={{pathname: '/setPlace', state: { prevPath: window.location.pathname }}}>
             <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
-        </Button>
-        <Button disabled={!savedToCloud}>
-          <Link className="back-navigation" to={{pathname: '/', state: { prevPath: window.location.pathname }}}>
-            Home <FontAwesomeIcon icon={faAngleRight} />
           </Link>
         </Button>
       </ButtonGroup>

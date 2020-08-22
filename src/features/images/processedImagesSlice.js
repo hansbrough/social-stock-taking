@@ -5,14 +5,19 @@ export const processedImagesSlice = createSlice({
   initialState: [],
   reducers: {
     upsert: (state, action) => {
+      //console.log("Processed upsert")
       if(action.payload) {
         const { imageDataURL, id } = action.payload;
-        if(!state.length) {
+        //console.log("..!state.some(item => item.id === id):",!state.some(item => item.id === id))
+        if(!state.length || !state.some(item => item.id === id)) {
+          //console.log("...insert")
           state.push({id, imageDataURL});
         } else {
-          state.map(obj => {
+          //console.log("...update")
+          // update item w/matching id or return item 'as is' if not a match.
+          return state.map(obj => {
             if(obj.id === id) {
-              obj.imageDataURL = imageDataURL;
+              return { ...obj, imageDataURL };
             }
             return obj
           });
@@ -26,6 +31,7 @@ export const processedImagesSlice = createSlice({
 })
 
 export const { upsert:saveProcessedImage, reset:resetProcessedImage } = processedImagesSlice.actions;
+export const selectProcessedImageById = (state, id) => state.processedImages.find(img => img.id === id);
 
 export const selectProcessedImages = state => state.processedImages;
 

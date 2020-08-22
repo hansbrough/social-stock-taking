@@ -7,7 +7,7 @@ import { Button, ButtonGroup } from 'reactstrap';
 import { makeWorkflowUid } from '../utils/SessionUtil';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
-import { save, reset, selectOriginalImages } from '../features/images/originalImagesSlice';
+import { save, reset, selectOriginalImageById } from '../features/images/originalImagesSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
@@ -15,18 +15,16 @@ import '../styles/Selfie.css';
 
 const TakePicture = () => {
   const dispatch        = useDispatch();
-  const originalImages  = useSelector(selectOriginalImages);
   const currentWorkflow = useSelector(selectCurrentWorkflow);
+  const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
   const videoElem       = useRef(null);
   const canvasElem      = useRef(null);
 
   const constraints     = { facingMode: 'environment' };
-  //
 
   useEffect(() => {
-    //console.log("useEffect workflow updated:",currentWorkflow);
-    if( currentWorkflow && !currentWorkflow.wid ) {
-      // console.log("...currentWorkflow needs an id!");
+    // console.log("useEffect workflow updated:",currentWorkflow);
+    if( currentWorkflow && (!currentWorkflow.wid || currentWorkflow.completed.finish) ) {
       dispatch(saveCurrentWorkflow({ wid: makeWorkflowUid() }));
     }
   },[currentWorkflow, dispatch]);
@@ -93,7 +91,7 @@ const TakePicture = () => {
       <h1 className="ml-3">Take a Picture</h1>
       <p className="ml-3">Frame the plant with it's label visible.</p>
       <div className="original-picture">
-        {!originalImages.length
+        {!originalImage
           && (
             <>
               <video className="mb-3" ref={videoElem} autoPlay={true}></video>
@@ -105,9 +103,9 @@ const TakePicture = () => {
 
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
-          {!!originalImages.length && <img className="preview-img" alt="" src={originalImages[0].imageDataURL} />}
+          {!!originalImage && <img className="preview-img" alt="" src={originalImage.imageDataURL} />}
 
-          {!!originalImages.length
+          {!!originalImage
             && (
               <ButtonGroup className="mt-2 w-100" size="lg">
 
@@ -126,7 +124,7 @@ const TakePicture = () => {
         </Link>
       </Button>
 
-      {!!originalImages.length
+      {!!originalImage
         && (
         <Button className="ml-2 mt-5" color="primary">
           <Link className="back-navigation" to={{pathname: '/cropPicture', state: { prevPath: window.location.pathname }}}>

@@ -7,15 +7,18 @@ export const currentWorkflowSlice = createSlice({
     upsert: (state, action) => {
       if(action.payload) {
         //console.log("workflowSlice action.payload:",action.payload)
-        const { wid, completed } = action.payload;
+        const { wid, completed={} } = action.payload;
         if(!state.wid) {
+          //console.log("...insert")
           state.wid = wid
         } else {
+          //console.log("...update")
           return Object.keys(completed).forEach(key => state.completed[key] = completed[key]);
         }
       }
     },
     reset: (state, action) => {
+      //console.log("workflowSlice reset")
       return {completed:{}};
     }
   }
