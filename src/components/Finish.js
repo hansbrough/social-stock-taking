@@ -3,9 +3,8 @@ import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Container, Button, ButtonGroup, Input, FormGroup, Spinner } from 'reactstrap';
 //= ==== Components ===== //
-import {storage} from '../firebase/firebase';
+import {storage, db} from '../firebase/firebase';
 
-//import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectOriginalImageById } from '../features/images/originalImagesSlice';
@@ -19,6 +18,7 @@ import { faAngleLeft, faAngleRight, faCloudUploadAlt } from '@fortawesome/free-s
 import '../styles/Selfie.css';
 
 const Finish = () => {
+  const collectionRef = db.collection('spotting');
   const dispatch = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   //NOTE: these essentially act as reselectors. better way to take advantage of memoization?
@@ -61,6 +61,10 @@ const Finish = () => {
         })
       }
     )
+    .then(() => collectionRef.add({...imageDetail, ...imageLocation}))
+    .then(function(docRef) {
+      console.log("Document written with ID: ", docRef.id);
+    })
     .catch(err =>
       console.warn(err)
     ).finally(() => {
