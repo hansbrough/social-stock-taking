@@ -52,23 +52,25 @@ const Finish = () => {
         return Promise.all(
           [origImgSnapshot, croppedImgSnapshot].map(snapshot => snapshot.ref.getDownloadURL())
         ).then(([origImgUrl, croppedImgUrl]) => {
-          //console.log("now save these: origImgUrl:",origImgUrl,"\n croppedImgUrl:",croppedImgUrl);
+          // dispatched action doesn't finish in time to update selector before firestore call below.
+          // so we pass the urls through the promise chain instead so they are available for persisting.
           dispatch(saveImageDetails({ id:currentWorkflow.wid, origImgUrl, croppedImgUrl }))
-          return;
+          return [origImgUrl, croppedImgUrl];
         })
       }
     )
-    .then(() => collectionRef.add({...imageDetail, ...imageLocation}))
+    .then(([origImgUrl, croppedImgUrl]) => collectionRef.add({...imageDetail, ...imageLocation, origImgUrl, croppedImgUrl}))
     .then(function(docRef) {
       console.log("Document written with ID: ", docRef.id);
     })
     .catch(err =>
       console.warn(err)
     ).finally(() => {
-      console.log("finally statement")
+      //console.log("finally statement")
       dispatch(saveCurrentWorkflow({ completed: { finish: true }}));
       setSavingToCloud(false);
       setSavedToCloud(true);
+      // lastly, redirect to success page.
       window.setTimeout(history.push('/success'), 500);
     });
   }
