@@ -1,6 +1,7 @@
 /*global google*/
 import React, {useState, useRef, useEffect} from 'react';
-import {useSelector} from 'react-redux'
+import {useSelector} from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Form, FormGroup, Button, Input,
@@ -14,6 +15,9 @@ import RegexConstants from '../constants/RegexConstants';
 //= ==== Components ===== //
 import {storage} from '../firebase/firebase';
 import ImageCropper from './imageCropper';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
 //= ==== Dev ===== //
@@ -35,7 +39,7 @@ const UploadFileForm = () => {
   const [plantIds, setPlantIds] = useState([]);
   const [currentPlant, setCurrentPlant] = useState();
   const [price, setPrice] = useState();
-  const [position, setPosition] = useState();
+  //const [position, setPosition] = useState();
   const [place, setPlace] = useState();
   const [places, setPlaces] = useState();
   const [placeSearching, setPlaceSearching] = useState();
@@ -189,7 +193,7 @@ const UploadFileForm = () => {
     setPlaceSearching(true);
     navigator.geolocation.getCurrentPosition((position) => {
       console.log("..geo position:",position.coords);
-      setPosition(position);
+      //setPosition(position);
       // use position to find a 'place' via google maps
       placesService.findPlaceFromQuery({
         query: place,
@@ -421,7 +425,11 @@ const UploadFileForm = () => {
       }
       </FormGroup>
 
-      <p><a href="/">Back To Home</a></p>
+      <Button className="mt-3">
+        <Link className="back-navigation" to={{pathname: '/', state: { prevPath: window.location.pathname }}}>
+          <FontAwesomeIcon icon={faAngleLeft} /> Home
+        </Link>
+      </Button>
 
     </Container>
   );

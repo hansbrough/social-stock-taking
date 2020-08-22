@@ -1,0 +1,54 @@
+:root {
+  --timeout: 500ms;
+}
+
+.swipe-container {
+  position: absolute;
+  left:0;
+}
+
+.forward-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.forward-enter-active {
+  transform: translateX(0%);
+  opacity: 1;
+  transition: all var(--timeout);
+}
+
+.forward-exit {
+  transform: translateX(0%);
+  opacity: 1;
+}
+
+.forward-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all var(--timeout);
+
+}
+
+.back-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.back-enter-active {
+  transform: translateX(0%);
+  opacity: 1;
+  transition: all var(--timeout);
+}
+
+.back-exit {
+  transform: translateX(0%);
+  opacity: 1;
+}
+
+.back-exit-active {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all var(--timeout);
+
+}
