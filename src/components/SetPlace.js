@@ -1,5 +1,5 @@
 /*global google*/
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -27,25 +27,32 @@ const SetPlace = () => {
 
   const [position, setPosition] = useState();
   const [placeHint, setPlaceHint] = useState();
-  const [place, setPlace] = useState();
-  const [places, setPlaces] = useState();
+  const [currentPlaceOption, setCurrentPlaceOption] = useState();// made for react-select
+  const [placeOptions, setPlaceOptions] = useState();// made for react-select
   const [placeSearching, setPlaceSearching] = useState();
   const [placesServiceResponse, setPlacesServiceResponse] = useState();
 
   // create a version of google's places service to make api calls on our behalf
   const placesService = new google.maps.places.PlacesService(document.createElement('div'))
 
-  // do once places known
+  // uses id of selected option to create an object representing the location ('place')
+  // 'useCallback' ensures this method will only run when one of it's dependenies updates.
+  const createImageLocationPayload = useCallback((selectedOption) => {
+    //console.log("createImageLocationPayload selectedOption:",selectedOption)
+    const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
+    // note: GeolocationCoordinates interface doesnt support spread syntax :(
+    return { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
+  },[currentWorkflow.wid, position, placesServiceResponse])
+
+  // do once place options have been set/changed in select widget
   useEffect(() => {
-    if (places) {
-      setPlace(places[0]);
+    if (placeOptions) {
+      //console.log("useEffect placeOptions changed:",placeOptions);
+      setCurrentPlaceOption(placeOptions[0]);
+      const payload = createImageLocationPayload(placeOptions[0]);
+      dispatch(saveImageLocation(payload));
     }
-  },[places]);
-
-  // do something once ...
-  useEffect(() => {
-
-  },[]);
+  },[placeOptions, createImageLocationPayload, dispatch]);
 
   // store the user entered place hint
   const handlePlaceHintChange = evt => {
@@ -54,14 +61,8 @@ const SetPlace = () => {
 
   const handlePlaceSelectChange = selectedOption => {
     //console.log("handlePlaceSelectChange:",selectedOption)
-    setPlace(selectedOption);
-    //console.log("...placesServiceResponse:",placesServiceResponse);
-    const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
-    //console.log("...position:",position);
-    //console.log("...selectedPlaceDetails:",selectedPlaceDetails);
-    // note: GeolocationCoordinates interface doesnt support spread syntax :(
-    const payload = { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
-    //console.log("...payload:",payload)
+    setCurrentPlaceOption(selectedOption);
+    const payload = createImageLocationPayload(selectedOption);
     dispatch(saveImageLocation(payload));
     dispatch(saveCurrentWorkflow({ completed: { setPlace: true }}));
   }
@@ -80,20 +81,9 @@ const SetPlace = () => {
       }, places => {
         //console.log("gmaps places result:",places);
         setPlacesServiceResponse(places);
-        setPlaces(places && places.map(place => {
+        setPlaceOptions(places && places.map(place => {
           return {value: place.place_id, label: `${place.name}, ${place.formatted_address}`}
         }));
-
-        if (places && places.length) {
-          if(places.length === 1) {
-            // show a single result
-            places[0].name && setPlace(`${places[0].name}, ${places[0].formatted_address}`);
-          } else {
-            // display selector
-          }
-        } else {
-          // no results
-        }
         setPlaceSearching(false);
       });
     });
@@ -133,14 +123,14 @@ const SetPlace = () => {
           }
         </Button>
         <div id="placesContainer"></div>
-        {places &&
+        {placeOptions &&
           (
             <>
             <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching store</span>
             <Select
-              value={place}
+              value={currentPlaceOption}
               onChange={handlePlaceSelectChange}
-              options={places}
+              options={placeOptions}
             />
             </>
           )
@@ -153,7 +143,7 @@ const SetPlace = () => {
             <FontAwesomeIcon icon={faAngleLeft} /> Back
           </Link>
         </Button>
-        <Button disabled={!place} color="primary">
+        <Button disabled={!currentPlaceOption} color="primary">
           <Link className="back-navigation" to={{pathname: '/finish', state: { prevPath: window.location.pathname }}}>
             Finish <FontAwesomeIcon icon={faAngleRight} />
           </Link>

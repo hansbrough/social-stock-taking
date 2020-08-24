@@ -17,7 +17,6 @@
 }
 
 .preview-img {
-    /*display: block;*/
     width: 100%;
     height: auto;
     object-fit: cover;
@@ -38,23 +37,11 @@
     display: block;
 }
 
-/*.btn-container {
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-}*/
-
 .back-btn, .download-btn {
     background: none;
     color: #fff;
     border: none;
     font-size: 1.5rem;
-}
-
-.download-btn {
-    /*margin-left: 25px;*/
 }
 
 /* used at btm of screen to go back in workflow */
