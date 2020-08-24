@@ -43,7 +43,7 @@ export default {
   9: {
     "pid": 9,
     "latin_name": "aloe betsileensis",
-    "aka": ["betsileensis", "Betsileo"],
+    "aka": ["Betsileo Aloe"],
   },
   10: {
     "pid": 10,
@@ -63,19 +63,19 @@ export default {
     "pid": 13,
     "latin_name": "aloe broomii",
     "slug": "aloe-broomii",
-    "aka": ["Mountain", "Snake"],
+    "aka": ["Mountain Aloe", "Snake Aloe"],
   },
   14: {
     "pid": 14,
     "latin_name": "aloe buhrii",
     "slug": "aloe-buhrii",
-    "aka": ["elias","buhr"],
+    "aka": ["elias", "Buhr's Aloe", "Spotted Aloe"],
   },
   15: {
     "pid": 15,
     "latin_name": "aloe burgersfortensis",
     "slug": "aloe-burgersfortensis",
-    "aka": ["burgersfort", "parvibracteata"],
+    "aka": ["Burgersfort Aloe", "parvibracteata"],
   },
   16: {
     "pid": 16,
@@ -87,7 +87,7 @@ export default {
     "pid": 17,
     "latin_name": "aloe camperi",
     "slug": "aloe-camperi",
-    "aka": ["Popcorn Aloe", "nubian", "eru", "Aloe grenadensis"],
+    "aka": ["Popcorn Aloe", "Nubian Aloe", "eru", "Aloe grenadensis"],
   },
   18: {
     "pid": 18,
@@ -99,7 +99,7 @@ export default {
     "pid": 19,
     "latin_name": "aloe castanea",
     "slug": "aloe-castanea",
-    "aka": ["castanea", "Cat Tail"],
+    "aka": ["Cat's Tail Aloe"],
   },
   20: {
     "pid": 20,
@@ -430,13 +430,13 @@ export default {
     "pid": 76,
     "latin_name": "aloe aristata",
     "slug": "aloe-aristata",
-    "aka": ["aristata","Torch", "lace", "guinea","fowl", "bearded"],
+    "aka": ["Torch Aloe", "Lace Aloe", "Guinea Fowl Aloe","Bearded Aloe"],
   },
   77: {
     "pid": 77,
     "latin_name": "aloe barberae",
     "slug": "aloe-barberae",
-    "aka": ["barberae", "giant", "South Africa", "bainesii"],
+    "aka": ["Giant Aloe Tree", "South African Aloe", "Aloe bainesii"],
   },
   78: {
     "pid": 78,
@@ -448,13 +448,13 @@ export default {
     "pid": 79,
     "latin_name": "aloe reynoldsii",
     "slug": "aloe-reynoldsii",
-    "aka": ["mbashe","yellow", "spineless"],
+    "aka": ["Mbashe Aloe","Yellow Aloe", "Spineless Aloe"],
   },
   80: {
     "pid": 80,
     "latin_name": "aloe rivierei",
     "slug": "aloe-rivierei",
-    "aka": ["rivierei"]
+    "aka": []
   },
   81: {
     "pid": 81,
@@ -465,7 +465,7 @@ export default {
     "pid": 82,
     "latin_name": "aloe rubroviolacea",
     "slug": "aloe-rubroviolacea",
-    "aka": ["rubroviolacea","arabian"],
+    "aka": ["Arabian Aloe"],
   },
   83: {
     "pid": 83,
@@ -489,7 +489,7 @@ export default {
     "pid": 86,
     "latin_name": "aloe secundiflora",
     "slug": "aloe-secundiflora",
-    "aka": ["secundiflora",]
+    "aka": []
   },
   87: {
     "pid": 87,
@@ -507,7 +507,7 @@ export default {
     "pid": 89,
     "latin_name": "aloe spinosissima",
     "slug": "aloe-spinosissima",
-    "aka": ["spider aloe"],
+    "aka": ["Spider Aloe"],
   },
   90: {
     "pid": 90,
@@ -543,7 +543,7 @@ export default {
     "pid":95,
     "latin_name": "aloe tauri",
     "slug": "aloe-tauri",
-    "aka": ["tauri","bullock", "bottlebrush"],
+    "aka": ["bullock", "bottlebrush"],
   },
   96: {
     "pid": 96,
@@ -555,7 +555,7 @@ export default {
     "pid": 97,
     "latin_name": "aloe tongaensis",
     "slug": "aloe-tongaensis",
-    "aka": ["tongaensis","tongaense","neanderthaloe","mozambique","medusa"],
+    "aka": ["tongaense","Neanderthaloe","Mozambique Aloe","Medusa Aloe"],
   },
   98: {
     "pid": 98,
@@ -567,19 +567,19 @@ export default {
     "pid": 99,
     "latin_name": "aloe vanbalenii",
     "slug": "aloe-vanbalenii",
-    "aka": ["vanbalenii","van","balen"],
+    "aka": ["Van Balen's Aloe"],
   },
   100: {
     "pid": 100,
     "latin_name": "aloe vaombe",
     "slug": "aloe-vaombe",
-    "aka": ["vaombe","malagasy"],
+    "aka": ["Malagasy Aloe"],
   },
   101: {
     "pid": 101,
     "latin_name": "aloe vaotsanda",
     "slug": "aloe-vaotsanda",
-    "aka": ["vaotsanda"]
+    "aka": []
   },
   102: {
     "pid": 102,
@@ -1071,7 +1071,7 @@ export default {
   },
   208: {
     "pid": 208,
-    "aka": ["Aloe 'Walmsley's Blue"]
+    "aka": ["Aloe Walmsley's Blue"]
   },
   209: {
     "pid": 209,

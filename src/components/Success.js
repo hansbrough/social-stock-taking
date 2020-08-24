@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {useDispatch} from 'react-redux';
 import { Container, Button, ButtonGroup } from 'reactstrap';
 //= ==== Store ===== //
@@ -10,6 +10,7 @@ import { faCheckCircle, faCamera } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const Success = () => {
+  const history = useHistory();
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(resetCurrentWorkflow())
@@ -24,10 +25,12 @@ const Success = () => {
       </div>
 
       <ButtonGroup className="my-3 w-100">
-        <Button color="primary">
-          <Link className="back-navigation" to={{pathname: '/takePicture', state: { prevPath: window.location.pathname }}}>
-            Take another picture <FontAwesomeIcon icon={faCamera} />
-          </Link>
+        <Button color="primary" onClick={() => history.push({
+            pathname: '/takePicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          Take another picture <FontAwesomeIcon icon={faCamera} />
         </Button>
       </ButtonGroup>
     </Container>

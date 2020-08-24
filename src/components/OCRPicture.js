@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
+import Select from 'react-select';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectAloes } from '../features/plants/plantsSlice';
@@ -13,13 +14,15 @@ import { selectImageDetailsById, saveImageDetails } from '../features/images/ima
 import RegexConstants from '../constants/RegexConstants';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
+import {capitalize} from '../utils/CommonUtils';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight, faFileAlt, faLeaf, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const OCRPicture = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const aloePlants = useSelector(selectAloes);
   const croppedImage = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
@@ -31,14 +34,20 @@ const OCRPicture = () => {
   const [ocrProgress, setOcrProgress] = useState();
   const [currentPlant, setCurrentPlant] = useState();
   const [plantIds, setPlantIds] = useState([]);
+  const [plantOptions, setPlantOptions] = useState();// made for react-select
+  const [currentPlantOption, setCurrentPlantOption] = useState();// made for react-select
   const [price, setPrice] = useState();
-  const [plantSaved, setPlantSaved] = useState();
 
   const canvasElem      = useRef(null);
   const ocrTextareaElem = useRef(null);
 
   // Caman is global object installed via a library's script tag
   const Caman = window.Caman;
+
+  // do something once cropped image first available
+  useEffect(() => {
+    !!croppedImage && preProcessOCRImage();;
+  },[croppedImage]);
 
   // do something once cropped image has been pre-processed
   useEffect(() => {
@@ -48,9 +57,14 @@ const OCRPicture = () => {
   // once list of matching plant id's has been updated
   useEffect(() => {
     if(plantIds.length) {
-      // console.log("plantIds updated:",plantIds);
+      //console.log("plantIds updated:",plantIds);
       const firstPlant = {...aloePlants[plantIds[0]]};// TODO: for now use first one - later display selectable list
-      firstPlant.aka = firstPlant.aka[0]; // TODO: for now use first common name
+      firstPlant.aka = firstPlant.aka.join(', ');
+      setPlantOptions(plantIds.map(id => {
+        const latinLabel = aloePlants[id].latin_name ? `${capitalize(aloePlants[id].latin_name)},` : '';
+        const commonName = aloePlants[id].aka.length ? `${aloePlants[id].aka.join(', ')}` : '';
+        return {value: id, label: `${latinLabel} ${commonName}`}
+      }));
       setCurrentPlant(firstPlant);
     }
   },[aloePlants, plantIds]);
@@ -65,9 +79,15 @@ const OCRPicture = () => {
     }
   },[imageDetails]);
 
+  // do something once plant options are known
+  useEffect(() => {
+    console.log("plantOptions updated:",plantOptions)
+    !!plantOptions && setCurrentPlantOption(plantOptions[0]);
+  },[plantOptions]);
+
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
-    //console.log("preProcessOCRImage")
+    console.log("preProcessOCRImage")
     Caman('#filteredImage', croppedImage.imageDataURL, function() {
           this.greyscale();
           this.sharpen(100);
@@ -80,13 +100,12 @@ const OCRPicture = () => {
         });
   }
 
-  //
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
   });
 
   const runOCR = async (imageUrl) => {
-    //console.log("runOCR");
+    console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -96,9 +115,9 @@ const OCRPicture = () => {
     setOcrStarted(false);
   };
 
-  const getImageText = evt => {
-    preProcessOCRImage();
-  }
+  // const getImageText = evt => {
+  //   preProcessOCRImage();
+  // }
 
   // given an array of words determine if any members are keywords and replace  plantIds list.
   // optionally use a backup list for further searching
@@ -131,7 +150,7 @@ const OCRPicture = () => {
 
   // find ocr words that maybe plant names or prices
   const handleFindMatchingClick = evt => {
-    // console.log("handleFindMatchingClick")
+    //console.log("handleFindMatchingClick")
     setPlantIds([]);// clear previous searches
     let candidates = [];
     const ocrText = ocr.toLowerCase();
@@ -140,10 +159,10 @@ const OCRPicture = () => {
     let match = RegexConstants.ALOE_KEYWORDS.exec(ocrText);
     // iterate through all matches looking for named groups
     while (match != null) {
-      //console.log("match.groups:",match.groups)
+      //console.log("...match.groups:",match.groups)
       if(match) {
         candidates = [...new Set(candidates.concat(Object.values(match.groups)))];
-        //console.log("candidates:",candidates);
+        console.log("...candidates:",candidates);
       }
       match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
     }
@@ -155,7 +174,7 @@ const OCRPicture = () => {
     if(priceMatch) {
       //clean up
       const price = priceMatch[0].replace(' ','');
-      // console.log("priceMatch:",priceMatch, " price:",price);
+      //console.log("...priceMatch:",priceMatch, " price:",price);
       setPrice(price)
     }
   }
@@ -163,30 +182,26 @@ const OCRPicture = () => {
   // persist plant details when user verifies they are correct.
   const handleSavePlantClick = () => {
     //console.log("handleSavePlantClick currentPlant:",currentPlant);
-    setPlantSaved(true);
     dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
     dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));
+    history.push({pathname: '/setPlace', state: { prevPath: window.location.pathname }});
+  }
+
+  const handlePlantSelectChange = selectedOption => {
+    //console.log("handlePlantSelectChange:",selectedOption);
+    setCurrentPlantOption(selectedOption);
+    setCurrentPlant(aloePlants[selectedOption.value]);
   }
 
   return (
     <Container className="ocr-picture-screen">
       <h1>Get Picture Text</h1>
-      <p>Together we can determine the plant's details.</p>
+      <p>Let's determine the plant details.</p>
       <div className="original-picture">
-
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
           {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
-
           <canvas id="filteredImage" className="d-none"></canvas>
-          {!!croppedImage
-            && (
-              <ButtonGroup className="mt-2 w-100" size="lg">
-                <Button onClick={getImageText}>
-                  <FontAwesomeIcon icon={faFileAlt} /> Get Text
-                </Button>
-              </ButtonGroup>
-            )}
         </div>
       </div>
 
@@ -195,7 +210,7 @@ const OCRPicture = () => {
         (
           <>
             <label>
-              <b>Here's our best guess...</b><br/>
+              <b>Here's a guess at text in the image.</b><br/>
               Help by fixing typos in the plant's name and price.<br/>
               <input
                 className="ocr-of-snapshot p-2 mt-2 w-100"
@@ -216,7 +231,7 @@ const OCRPicture = () => {
       }
       {ocrStarted && !!ocrProgress &&
         (
-          <Progress className="d-block" max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
+          <Progress max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
         )
       }
       {ocr &&
@@ -228,31 +243,25 @@ const OCRPicture = () => {
         </div>
       )}
 
-      {currentPlant &&
+      {currentPlantOption &&
         (
         <>
           <p className="mt-2">
             <b>Is this the plant?</b><br/>
             (hint: you can edit text above and try again)
           </p>
-          <label className="d-block">
-            Latin Name:
-            <Input
-              className="p-2"
-              type="text"
-              value={currentPlant.latin_name}
-              disabled={true}
-            />
-          </label>
-          <label className="d-block">
-            Common Name:
-            <Input
-              className="p-2"
-              type="text"
-              value={currentPlant.aka}
-              disabled={true}
-            />
-          </label>
+          {plantOptions &&
+            (
+              <>
+              <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching plant</span>
+              <Select
+                value={currentPlantOption}
+                onChange={handlePlantSelectChange}
+                options={plantOptions}
+              />
+              </>
+            )
+          }
           <label className="d-block">
             Price
             <Input
@@ -262,22 +271,19 @@ const OCRPicture = () => {
               onChange={handlePriceChange}
             />
           </label>
-          <Button color="primary" disabled={!plantIds.length} onClick={handleSavePlantClick}>
-            <FontAwesomeIcon icon={faLeaf} /> Yes, That's My Plant!
-          </Button>
         </>
       )}
       </section>
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/cropPicture', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/cropPicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
-        <Button color="primary" disabled={!plantSaved}>
-          <Link className="back-navigation" to={{pathname: '/setPlace', state: { prevPath: window.location.pathname }}}>
-            Where'd You Find It? <FontAwesomeIcon icon={faAngleRight} />
-          </Link>
+        <Button color="primary" disabled={!plantIds.length} onClick={handleSavePlantClick}>
+          That's My Plant! Next <FontAwesomeIcon icon={faAngleRight} />
         </Button>
       </ButtonGroup>
     </Container>

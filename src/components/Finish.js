@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
-import { Link } from 'react-router-dom';
 import { Container, Button, ButtonGroup, Input, FormGroup, Spinner } from 'reactstrap';
 //= ==== Components ===== //
 import {storage, db} from '../firebase/firebase';
-
+//= ==== Utils ===== //
+import {capitalize} from '../utils/CommonUtils';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectOriginalImageById } from '../features/images/originalImagesSlice';
@@ -94,20 +94,23 @@ const Finish = () => {
             <h4>Plant Details</h4>
             <Input
               className="p-2 mb-2"
-              value={imageDetail.latinName}
+              value={(imageDetail.latinName && capitalize(imageDetail.latinName)) || 'N/A'}
               type="text"
+              placeholder="Latin Name"
               disabled
             />
             <Input
               className="p-2 mb-2"
               value={imageDetail.commonName}
               type="text"
+              placeholder="Common Names"
               disabled
             />
             <Input
               className="p-2 mb-2"
               value={imageDetail.price}
               type="text"
+              placeholder="price not found"
               disabled
             />
             <h4>Place Details</h4>
@@ -143,10 +146,12 @@ const Finish = () => {
           </FormGroup>
         )}
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/setPlace', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/setPlace',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
       </ButtonGroup>
     </Container>

@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { Button, ButtonGroup, Container } from 'reactstrap';
 //= ==== Components ===== //
 import ImageCropper from './imageCropper';
@@ -14,6 +14,7 @@ import '../styles/Selfie.css';
 
 const CropPicture = () => {
   const dispatch        = useDispatch();
+  const history         = useHistory();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
 
@@ -23,6 +24,7 @@ const CropPicture = () => {
   const handleSaveClick = evt => {
     setSaveClicked(true);
     dispatch(saveCurrentWorkflow({ completed: { cropPicture: true }}));
+    history.push({pathname: '/getPictureText', state: { prevPath: window.location.pathname }});
   };
 
   // provided to the cropper component which hands back a reference to it's imageElem.
@@ -35,7 +37,7 @@ const CropPicture = () => {
   return (
     <Container className="crop-picture-screen">
       <h1>Crop Picture</h1>
-      <p>Do your best to crop just the label.</p>
+      <p>Do your best to crop just the important part of the label.</p>
       <div className="original-picture">
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
@@ -46,20 +48,17 @@ const CropPicture = () => {
           <canvas id="filteredImage" className="d-none"></canvas>
         </div>
       </div>
-      <Button color="primary" onClick={handleSaveClick} className="w-100 mt-2">
-        Cropped Image Lookin' Good!  <FontAwesomeIcon icon={faThumbsUp} />
-      </Button>
 
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/takePicture', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/takePicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
-        <Button color="primary" disabled={!saveClicked}>
-          <Link className="back-navigation" to={{pathname: '/getPictureText', state: { prevPath: window.location.pathname }}}>
-            Get Picture Text <FontAwesomeIcon icon={faAngleRight} />
-          </Link>
+        <Button color="primary" onClick={handleSaveClick}>
+          Done Cropping! Next <FontAwesomeIcon icon={faAngleRight} />
         </Button>
       </ButtonGroup>
     </Container>
