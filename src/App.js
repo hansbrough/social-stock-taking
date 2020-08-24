@@ -27,7 +27,7 @@ function App() {
         const { location } = props;
         const { key } = location;
         const direction = getNavigationDirection(location);
-        //console.log("direction:",direction);
+        console.log("direction:",direction);
         return (
           <TransitionGroup>
             <CSSTransition

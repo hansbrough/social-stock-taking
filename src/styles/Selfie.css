@@ -3,6 +3,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  position: relative;
 }
 
 .original-picture video {
@@ -23,11 +24,10 @@
 }
 
 .capture-btn {
-    /*position: absolute;
-    background: none;*/
     color: #fff;
     border: none;
     font-size: 40px;
+    bottom: 2rem;
 }
 
 .capture-btn:hover {

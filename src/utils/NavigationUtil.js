@@ -13,6 +13,7 @@ const workflow = {
 
 // determine direction of workflow navigation
 export const getNavigationDirection = (location) => {
+  console.log("getNavigationDirection location:",location);
   const { pathname } = location;
   let direction = 'back';
   if (location.state) {

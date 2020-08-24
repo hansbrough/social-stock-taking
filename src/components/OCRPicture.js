@@ -3,6 +3,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
+import Select from 'react-select';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectAloes } from '../features/plants/plantsSlice';
@@ -13,6 +14,7 @@ import { selectImageDetailsById, saveImageDetails } from '../features/images/ima
 import RegexConstants from '../constants/RegexConstants';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
+import {capitalize} from '../utils/CommonUtils';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faFileAlt, faLeaf, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +33,8 @@ const OCRPicture = () => {
   const [ocrProgress, setOcrProgress] = useState();
   const [currentPlant, setCurrentPlant] = useState();
   const [plantIds, setPlantIds] = useState([]);
+  const [plantOptions, setPlantOptions] = useState();// made for react-select
+  const [currentPlantOption, setCurrentPlantOption] = useState();// made for react-select
   const [price, setPrice] = useState();
   const [plantSaved, setPlantSaved] = useState();
 
@@ -48,9 +52,14 @@ const OCRPicture = () => {
   // once list of matching plant id's has been updated
   useEffect(() => {
     if(plantIds.length) {
-      // console.log("plantIds updated:",plantIds);
+      //console.log("plantIds updated:",plantIds);
       const firstPlant = {...aloePlants[plantIds[0]]};// TODO: for now use first one - later display selectable list
-      firstPlant.aka = firstPlant.aka[0]; // TODO: for now use first common name
+      firstPlant.aka = firstPlant.aka.join(', ');
+      setPlantOptions(plantIds.map(id => {
+        const latinLabel = aloePlants[id].latin_name ? `${capitalize(aloePlants[id].latin_name)},` : '';
+        const commonName = aloePlants[id].aka.length ? `${aloePlants[id].aka.join(', ')}` : '';
+        return {value: id, label: `${latinLabel} ${commonName}`}
+      }));
       setCurrentPlant(firstPlant);
     }
   },[aloePlants, plantIds]);
@@ -64,6 +73,12 @@ const OCRPicture = () => {
       setPrice(price);
     }
   },[imageDetails]);
+
+  // do something once plant options are known
+  useEffect(() => {
+    console.log("plantOptions updated:",plantOptions)
+    !!plantOptions && setCurrentPlantOption(plantOptions[0]);
+  },[plantOptions]);
 
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
@@ -131,7 +146,7 @@ const OCRPicture = () => {
 
   // find ocr words that maybe plant names or prices
   const handleFindMatchingClick = evt => {
-    // console.log("handleFindMatchingClick")
+    //console.log("handleFindMatchingClick")
     setPlantIds([]);// clear previous searches
     let candidates = [];
     const ocrText = ocr.toLowerCase();
@@ -140,10 +155,10 @@ const OCRPicture = () => {
     let match = RegexConstants.ALOE_KEYWORDS.exec(ocrText);
     // iterate through all matches looking for named groups
     while (match != null) {
-      //console.log("match.groups:",match.groups)
+      //console.log("...match.groups:",match.groups)
       if(match) {
         candidates = [...new Set(candidates.concat(Object.values(match.groups)))];
-        //console.log("candidates:",candidates);
+        console.log("...candidates:",candidates);
       }
       match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
     }
@@ -155,7 +170,7 @@ const OCRPicture = () => {
     if(priceMatch) {
       //clean up
       const price = priceMatch[0].replace(' ','');
-      // console.log("priceMatch:",priceMatch, " price:",price);
+      //console.log("...priceMatch:",priceMatch, " price:",price);
       setPrice(price)
     }
   }
@@ -166,6 +181,12 @@ const OCRPicture = () => {
     setPlantSaved(true);
     dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
     dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));
+  }
+
+  const handlePlantSelectChange = selectedOption => {
+    //console.log("handlePlantSelectChange:",selectedOption);
+    setCurrentPlantOption(selectedOption);
+    setCurrentPlant(aloePlants[selectedOption.value]);
   }
 
   return (
@@ -228,31 +249,25 @@ const OCRPicture = () => {
         </div>
       )}
 
-      {currentPlant &&
+      {currentPlantOption &&
         (
         <>
           <p className="mt-2">
             <b>Is this the plant?</b><br/>
             (hint: you can edit text above and try again)
           </p>
-          <label className="d-block">
-            Latin Name:
-            <Input
-              className="p-2"
-              type="text"
-              value={currentPlant.latin_name}
-              disabled={true}
-            />
-          </label>
-          <label className="d-block">
-            Common Name:
-            <Input
-              className="p-2"
-              type="text"
-              value={currentPlant.aka}
-              disabled={true}
-            />
-          </label>
+          {plantOptions &&
+            (
+              <>
+              <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching plant</span>
+              <Select
+                value={currentPlantOption}
+                onChange={handlePlantSelectChange}
+                options={plantOptions}
+              />
+              </>
+            )
+          }
           <label className="d-block">
             Price
             <Input

@@ -43,7 +43,7 @@ export default {
   9: {
     "pid": 9,
     "latin_name": "aloe betsileensis",
-    "aka": ["betsileensis", "Betsileo"],
+    "aka": ["Betsileo Aloe"],
   },
   10: {
     "pid": 10,
@@ -63,19 +63,19 @@ export default {
     "pid": 13,
     "latin_name": "aloe broomii",
     "slug": "aloe-broomii",
-    "aka": ["Mountain", "Snake"],
+    "aka": ["Mountain Aloe", "Snake Aloe"],
   },
   14: {
     "pid": 14,
     "latin_name": "aloe buhrii",
     "slug": "aloe-buhrii",
-    "aka": ["elias","buhr"],
+    "aka": ["elias", "Buhr's Aloe", "Spotted Aloe"],
   },
   15: {
     "pid": 15,
     "latin_name": "aloe burgersfortensis",
     "slug": "aloe-burgersfortensis",
-    "aka": ["burgersfort", "parvibracteata"],
+    "aka": ["Burgersfort Aloe", "parvibracteata"],
   },
   16: {
     "pid": 16,
@@ -87,7 +87,7 @@ export default {
     "pid": 17,
     "latin_name": "aloe camperi",
     "slug": "aloe-camperi",
-    "aka": ["Popcorn Aloe", "nubian", "eru", "Aloe grenadensis"],
+    "aka": ["Popcorn Aloe", "Nubian Aloe", "eru", "Aloe grenadensis"],
   },
   18: {
     "pid": 18,
@@ -99,7 +99,7 @@ export default {
     "pid": 19,
     "latin_name": "aloe castanea",
     "slug": "aloe-castanea",
-    "aka": ["castanea", "Cat Tail"],
+    "aka": ["Cat's Tail Aloe"],
   },
   20: {
     "pid": 20,
@@ -1071,7 +1071,7 @@ export default {
   },
   208: {
     "pid": 208,
-    "aka": ["Aloe 'Walmsley's Blue"]
+    "aka": ["Aloe Walmsley's Blue"]
   },
   209: {
     "pid": 209,

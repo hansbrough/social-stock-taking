@@ -89,13 +89,13 @@ const TakePicture = () => {
   return (
     <>
       <h1 className="ml-3">Take a Picture</h1>
-      <p className="ml-3">Frame the plant with it's label visible.</p>
+      <p className="ml-3">Get a close up of the plant's label.</p>
       <div className="original-picture">
         {!originalImage
           && (
             <>
               <video className="mb-3" ref={videoElem} autoPlay={true}></video>
-              <Button className="capture-btn" onClick={takePicture}>
+              <Button className="capture-btn position-absolute" onClick={takePicture}>
                 <FontAwesomeIcon icon={faCamera} />
               </Button>
             </>
