@@ -95,7 +95,7 @@ const TakePicture = () => {
           && (
             <>
               <video className="mb-3" ref={videoElem} autoPlay={true}></video>
-              <Button className="capture-btn position-absolute" onClick={takePicture}>
+              <Button color="primary" className="capture-btn position-absolute" onClick={takePicture}>
                 <FontAwesomeIcon icon={faCamera} />
               </Button>
             </>

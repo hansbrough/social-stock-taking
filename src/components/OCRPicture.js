@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
 import Select from 'react-select';
@@ -17,11 +17,12 @@ import keywords from '../utils/aloe_keywords';
 import {capitalize} from '../utils/CommonUtils';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight, faFileAlt, faLeaf, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const OCRPicture = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const aloePlants = useSelector(selectAloes);
   const croppedImage = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
@@ -36,13 +37,17 @@ const OCRPicture = () => {
   const [plantOptions, setPlantOptions] = useState();// made for react-select
   const [currentPlantOption, setCurrentPlantOption] = useState();// made for react-select
   const [price, setPrice] = useState();
-  const [plantSaved, setPlantSaved] = useState();
 
   const canvasElem      = useRef(null);
   const ocrTextareaElem = useRef(null);
 
   // Caman is global object installed via a library's script tag
   const Caman = window.Caman;
+
+  // do something once cropped image first available
+  useEffect(() => {
+    !!croppedImage && preProcessOCRImage();;
+  },[croppedImage]);
 
   // do something once cropped image has been pre-processed
   useEffect(() => {
@@ -82,7 +87,7 @@ const OCRPicture = () => {
 
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
-    //console.log("preProcessOCRImage")
+    console.log("preProcessOCRImage")
     Caman('#filteredImage', croppedImage.imageDataURL, function() {
           this.greyscale();
           this.sharpen(100);
@@ -101,7 +106,7 @@ const OCRPicture = () => {
   });
 
   const runOCR = async (imageUrl) => {
-    //console.log("runOCR");
+    console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -111,9 +116,9 @@ const OCRPicture = () => {
     setOcrStarted(false);
   };
 
-  const getImageText = evt => {
-    preProcessOCRImage();
-  }
+  // const getImageText = evt => {
+  //   preProcessOCRImage();
+  // }
 
   // given an array of words determine if any members are keywords and replace  plantIds list.
   // optionally use a backup list for further searching
@@ -178,9 +183,9 @@ const OCRPicture = () => {
   // persist plant details when user verifies they are correct.
   const handleSavePlantClick = () => {
     //console.log("handleSavePlantClick currentPlant:",currentPlant);
-    setPlantSaved(true);
     dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
     dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));
+    history.push({pathname: '/setPlace', state: { prevPath: window.location.pathname }});
   }
 
   const handlePlantSelectChange = selectedOption => {
@@ -192,22 +197,12 @@ const OCRPicture = () => {
   return (
     <Container className="ocr-picture-screen">
       <h1>Get Picture Text</h1>
-      <p>Together we can determine the plant's details.</p>
+      <p>Let's determine the plant details.</p>
       <div className="original-picture">
-
         <canvas ref={canvasElem} style={{display: 'none'}}></canvas>
         <div className="preview">
           {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
-
           <canvas id="filteredImage" className="d-none"></canvas>
-          {!!croppedImage
-            && (
-              <ButtonGroup className="mt-2 w-100" size="lg">
-                <Button onClick={getImageText}>
-                  <FontAwesomeIcon icon={faFileAlt} /> Get Text
-                </Button>
-              </ButtonGroup>
-            )}
         </div>
       </div>
 
@@ -216,7 +211,7 @@ const OCRPicture = () => {
         (
           <>
             <label>
-              <b>Here's our best guess...</b><br/>
+              <b>Here's a guess at text in the image.</b><br/>
               Help by fixing typos in the plant's name and price.<br/>
               <input
                 className="ocr-of-snapshot p-2 mt-2 w-100"
@@ -277,22 +272,19 @@ const OCRPicture = () => {
               onChange={handlePriceChange}
             />
           </label>
-          <Button color="primary" disabled={!plantIds.length} onClick={handleSavePlantClick}>
-            <FontAwesomeIcon icon={faLeaf} /> Yes, That's My Plant!
-          </Button>
         </>
       )}
       </section>
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/cropPicture', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/cropPicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
-        <Button color="primary" disabled={!plantSaved}>
-          <Link className="back-navigation" to={{pathname: '/setPlace', state: { prevPath: window.location.pathname }}}>
-            Where'd You Find It? <FontAwesomeIcon icon={faAngleRight} />
-          </Link>
+        <Button color="primary" disabled={!plantIds.length} onClick={handleSavePlantClick}>
+          That's My Plant! Next <FontAwesomeIcon icon={faAngleRight} />
         </Button>
       </ButtonGroup>
     </Container>

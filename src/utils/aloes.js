@@ -430,13 +430,13 @@ export default {
     "pid": 76,
     "latin_name": "aloe aristata",
     "slug": "aloe-aristata",
-    "aka": ["aristata","Torch", "lace", "guinea","fowl", "bearded"],
+    "aka": ["Torch Aloe", "Lace Aloe", "Guinea Fowl Aloe","Bearded Aloe"],
   },
   77: {
     "pid": 77,
     "latin_name": "aloe barberae",
     "slug": "aloe-barberae",
-    "aka": ["barberae", "giant", "South Africa", "bainesii"],
+    "aka": ["Giant Aloe Tree", "South African Aloe", "Aloe bainesii"],
   },
   78: {
     "pid": 78,
@@ -448,13 +448,13 @@ export default {
     "pid": 79,
     "latin_name": "aloe reynoldsii",
     "slug": "aloe-reynoldsii",
-    "aka": ["mbashe","yellow", "spineless"],
+    "aka": ["Mbashe Aloe","Yellow Aloe", "Spineless Aloe"],
   },
   80: {
     "pid": 80,
     "latin_name": "aloe rivierei",
     "slug": "aloe-rivierei",
-    "aka": ["rivierei"]
+    "aka": []
   },
   81: {
     "pid": 81,
@@ -465,7 +465,7 @@ export default {
     "pid": 82,
     "latin_name": "aloe rubroviolacea",
     "slug": "aloe-rubroviolacea",
-    "aka": ["rubroviolacea","arabian"],
+    "aka": ["Arabian Aloe"],
   },
   83: {
     "pid": 83,
@@ -489,7 +489,7 @@ export default {
     "pid": 86,
     "latin_name": "aloe secundiflora",
     "slug": "aloe-secundiflora",
-    "aka": ["secundiflora",]
+    "aka": []
   },
   87: {
     "pid": 87,
@@ -507,7 +507,7 @@ export default {
     "pid": 89,
     "latin_name": "aloe spinosissima",
     "slug": "aloe-spinosissima",
-    "aka": ["spider aloe"],
+    "aka": ["Spider Aloe"],
   },
   90: {
     "pid": 90,
@@ -543,7 +543,7 @@ export default {
     "pid":95,
     "latin_name": "aloe tauri",
     "slug": "aloe-tauri",
-    "aka": ["tauri","bullock", "bottlebrush"],
+    "aka": ["bullock", "bottlebrush"],
   },
   96: {
     "pid": 96,
@@ -555,7 +555,7 @@ export default {
     "pid": 97,
     "latin_name": "aloe tongaensis",
     "slug": "aloe-tongaensis",
-    "aka": ["tongaensis","tongaense","neanderthaloe","mozambique","medusa"],
+    "aka": ["tongaense","Neanderthaloe","Mozambique Aloe","Medusa Aloe"],
   },
   98: {
     "pid": 98,
@@ -567,19 +567,19 @@ export default {
     "pid": 99,
     "latin_name": "aloe vanbalenii",
     "slug": "aloe-vanbalenii",
-    "aka": ["vanbalenii","van","balen"],
+    "aka": ["Van Balen's Aloe"],
   },
   100: {
     "pid": 100,
     "latin_name": "aloe vaombe",
     "slug": "aloe-vaombe",
-    "aka": ["vaombe","malagasy"],
+    "aka": ["Malagasy Aloe"],
   },
   101: {
     "pid": 101,
     "latin_name": "aloe vaotsanda",
     "slug": "aloe-vaotsanda",
-    "aka": ["vaotsanda"]
+    "aka": []
   },
   102: {
     "pid": 102,
