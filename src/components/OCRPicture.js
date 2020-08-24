@@ -100,7 +100,6 @@ const OCRPicture = () => {
         });
   }
 
-  //
   const worker = createWorker({
     logger: m => m.jobId && setOcrProgress(Math.round(m.progress*100)),
   });
@@ -232,7 +231,7 @@ const OCRPicture = () => {
       }
       {ocrStarted && !!ocrProgress &&
         (
-          <Progress className="d-block" max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
+          <Progress max="100" value={ocrProgress}>{ocrProgress && `${ocrProgress}%`}</Progress>
         )
       }
       {ocr &&
