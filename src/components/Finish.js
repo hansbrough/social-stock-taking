@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
-import { Link } from 'react-router-dom';
 import { Container, Button, ButtonGroup, Input, FormGroup, Spinner } from 'reactstrap';
 //= ==== Components ===== //
 import {storage, db} from '../firebase/firebase';
@@ -147,10 +146,12 @@ const Finish = () => {
           </FormGroup>
         )}
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/setPlace', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/setPlace',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
       </ButtonGroup>
     </Container>

@@ -1,7 +1,7 @@
 /*global google*/
 import React, {useState, useEffect, useCallback} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   Container, Button, ButtonGroup,
   Spinner, FormGroup, Input
@@ -21,6 +21,7 @@ import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const SetPlace = () => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
@@ -138,15 +139,19 @@ const SetPlace = () => {
       </FormGroup>
 
       <ButtonGroup className="my-3 w-100">
-        <Button>
-          <Link className="back-navigation" to={{pathname: '/getPictureText', state: { prevPath: window.location.pathname }}}>
-            <FontAwesomeIcon icon={faAngleLeft} /> Back
-          </Link>
+        <Button onClick={() => history.push({
+            pathname: '/getPictureText',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>
-        <Button disabled={!currentPlaceOption} color="primary">
-          <Link className="back-navigation" to={{pathname: '/finish', state: { prevPath: window.location.pathname }}}>
-            Finish <FontAwesomeIcon icon={faAngleRight} />
-          </Link>
+        <Button disabled={!currentPlaceOption} color="primary" onClick={()=>history.push({
+            pathname: '/finish',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          Finish <FontAwesomeIcon icon={faAngleRight} />
         </Button>
       </ButtonGroup>
     </Container>

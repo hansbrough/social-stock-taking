@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 //= ==== Components ===== //
 //= ==== Utils ===== //
@@ -14,6 +14,7 @@ import { faCamera, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg
 import '../styles/Selfie.css';
 
 const TakePicture = () => {
+  const history         = useHistory();
   const dispatch        = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
   const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
@@ -118,18 +119,22 @@ const TakePicture = () => {
         </div>
       </div>
 
-      <Button className="ml-3 mt-5">
-        <Link className="back-navigation" to={{pathname: '/', state: { prevPath: window.location.pathname }}}>
-          <FontAwesomeIcon icon={faAngleLeft} /> Home
-        </Link>
+      <Button className="ml-3 mt-5" onClick={() => history.push({
+          pathname: '/',
+          state: { prevPath: window.location.pathname }
+        })}
+      >
+        <FontAwesomeIcon icon={faAngleLeft} /> Home
       </Button>
 
       {!!originalImage
         && (
-        <Button className="ml-2 mt-5" color="primary">
-          <Link className="back-navigation" to={{pathname: '/cropPicture', state: { prevPath: window.location.pathname }}}>
-            Crop <FontAwesomeIcon icon={faAngleRight} />
-          </Link>
+        <Button className="ml-2 mt-5" color="primary" onClick={() => history.push({
+            pathname: '/cropPicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          Crop <FontAwesomeIcon icon={faAngleRight} />
         </Button>
       )}
     </>
