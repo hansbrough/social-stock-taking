@@ -26,7 +26,7 @@ const Finish = () => {
   //NOTE: these essentially act as reselectors. better way to take advantage of memoization?
   const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
   const croppedImage    = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
-  const imageLocation   = useSelector((state) => selectImageLocationById(state, currentWorkflow.wid));
+  const imageLocation   = useSelector((state) => selectImageLocationById(state, {id:currentWorkflow.wid}));
   const imageDetail     = useSelector((state) => selectImageDetailsById(state, currentWorkflow.wid));
 
   const [savingToCloud, setSavingToCloud] = useState();

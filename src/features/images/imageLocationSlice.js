@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { createSelector } from 'reselect';
 
 export const imageLocationSlice = createSlice({
   name: 'imageLocation',
@@ -29,9 +30,27 @@ export const imageLocationSlice = createSlice({
   }
 })
 
+//Actions
 export const { upsert:saveImageLocation, reset:resetImageLocation } = imageLocationSlice.actions;
 
-export const selectImageLocation = state => state.imageLocation;
-export const selectImageLocationById = (state, id) => state.imageLocation.find(img => img.id === id);
+//Selectors
+export const selectImageLocations = state => state.imageLocation;
+const getImageLocationId = (state, props) => props && props.id;
+
+// reselectors
+export const selectImageLocationById = createSelector(
+  [selectImageLocations, getImageLocationId],
+  (imageLocations, id) => imageLocations.find(item => item.id === id)
+);
+export const selectLastImageLocation = createSelector(
+  [selectImageLocations],
+  imageLocations => imageLocations[Math.max(0, imageLocations.length -1)]
+);
+
+export const selectLastImageLocationId = createSelector(
+  [selectLastImageLocation],
+  (lastImageLocation) => lastImageLocation && lastImageLocation.id
+);
+
 
 export default imageLocationSlice.reducer

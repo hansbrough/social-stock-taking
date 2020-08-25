@@ -12,8 +12,9 @@ import Select from 'react-select';
 //import {storage} from '../firebase/firebase';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { selectLastWorkflowId } from '../features/workflowsSlice';
 import { selectOriginalImageById } from '../features/images/originalImagesSlice';
-import { saveImageLocation } from '../features/images/imageLocationSlice';
+import { saveImageLocation, selectImageLocationById } from '../features/images/imageLocationSlice';
 
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,8 +24,10 @@ import '../styles/Selfie.css';
 const SetPlace = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const currentWorkflow = useSelector(selectCurrentWorkflow);
-  const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
+  const currentWorkflow   = useSelector(selectCurrentWorkflow);
+  const lastWorkflowId    = useSelector(selectLastWorkflowId);
+  const originalImage     = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
+  const lastImageLocation = useSelector((state) => selectImageLocationById(state, {id:lastWorkflowId}));//reselector
 
   const [position, setPosition] = useState();
   const [placeHint, setPlaceHint] = useState();
@@ -40,10 +43,17 @@ const SetPlace = () => {
   // 'useCallback' ensures this method will only run when one of it's dependenies updates.
   const createImageLocationPayload = useCallback((selectedOption) => {
     //console.log("createImageLocationPayload selectedOption:",selectedOption)
-    const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
-    // note: GeolocationCoordinates interface doesnt support spread syntax :(
-    return { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
-  },[currentWorkflow.wid, position, placesServiceResponse])
+    if(placesServiceResponse) {
+      //console.log("...use places response")
+      const selectedPlaceDetails = placesServiceResponse.find(item => item.place_id === selectedOption.value);
+      // note: GeolocationCoordinates interface doesnt support spread syntax :(
+      return { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, ...selectedPlaceDetails};
+    } else if(lastImageLocation) {
+      //console.log("...use last image location");
+      const {placeId:place_id, address:formatted_address, name} = {...lastImageLocation};
+      return { id:currentWorkflow.wid, lat:position.coords.latitude, lng:position.coords.longitude, place_id, formatted_address, name };
+    }
+  },[currentWorkflow.wid, position, placesServiceResponse, lastImageLocation])
 
   // do once place options have been set/changed in select widget
   useEffect(() => {
@@ -54,6 +64,27 @@ const SetPlace = () => {
       dispatch(saveImageLocation(payload));
     }
   },[placeOptions, createImageLocationPayload, dispatch]);
+
+  // when a last location exists
+  useEffect(() => {
+    if(lastImageLocation) {
+      //console.log("useEffect lastImageLocation:",lastImageLocation);
+      navigator.geolocation.getCurrentPosition((position) => {
+        //console.log("... Got geolocation position:",position.coords);
+        setPosition(position);
+        if(
+          position.coords.latitude === lastImageLocation.lat &&
+          position.coords.longitude === lastImageLocation.lng
+        ) {
+         //console.log("....position same as last workflow");
+         setPlaceOptions(
+            [{value: lastImageLocation.placeId, label: `${lastImageLocation.name}, ${lastImageLocation.address}`}]
+          );
+       }
+
+      })
+    }
+  },[lastImageLocation]);
 
   // store the user entered place hint
   const handlePlaceHintChange = evt => {
