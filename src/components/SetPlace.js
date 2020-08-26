@@ -158,7 +158,7 @@ const SetPlace = () => {
         {placeOptions &&
           (
             <>
-            <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching store</span>
+            <span className="d-inline-block mb-2"><b>Found something!</b> Choose the best option</span>
             <Select
               value={currentPlaceOption}
               onChange={handlePlaceSelectChange}

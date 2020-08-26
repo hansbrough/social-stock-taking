@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
-import { Container, Button, ButtonGroup, Progress, Input } from 'reactstrap';
+import { Container, Button, ButtonGroup, Progress, Input, FormGroup } from 'reactstrap';
 import Select from 'react-select';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
@@ -12,9 +12,11 @@ import { selectProcessedImageById, saveProcessedImage } from '../features/images
 import { selectImageDetailsById, saveImageDetails } from '../features/images/imageDetailsSlice';
 //= ==== Constants ===== //
 import RegexConstants from '../constants/RegexConstants';
+import ErrorKeyConstants from '../constants/ErrorKeyConstants';
 //= ==== Utils ===== //
 import keywords from '../utils/aloe_keywords';
 import {capitalize} from '../utils/CommonUtils';
+import {getErrorText} from '../utils/ErrorDisplayUtil';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -37,6 +39,8 @@ const OCRPicture = () => {
   const [plantOptions, setPlantOptions] = useState();// made for react-select
   const [currentPlantOption, setCurrentPlantOption] = useState();// made for react-select
   const [price, setPrice] = useState();
+  const [errorKey, setErrorKey] = useState();
+  const [okToDisplayFormFeedback, setOkToDisplayFormFeedback] = useState();
 
   const canvasElem      = useRef(null);
   const ocrTextareaElem = useRef(null);
@@ -66,6 +70,10 @@ const OCRPicture = () => {
         return {value: id, label: `${latinLabel} ${commonName}`}
       }));
       setCurrentPlant(firstPlant);
+      setErrorKey();
+    } else {
+      console.log("useEffect no matching plantIds found");
+      setErrorKey(ErrorKeyConstants.NO_CANDIDATES);
     }
   },[aloePlants, plantIds]);
 
@@ -150,7 +158,8 @@ const OCRPicture = () => {
 
   // find ocr words that maybe plant names or prices
   const handleFindMatchingClick = evt => {
-    //console.log("handleFindMatchingClick")
+    console.log("handleFindMatchingClick")
+    setOkToDisplayFormFeedback(true);
     setPlantIds([]);// clear previous searches
     let candidates = [];
     const ocrText = ocr.toLowerCase();
@@ -168,7 +177,6 @@ const OCRPicture = () => {
     }
     // search for these prefix/suffix words in list of known keywords
     updatePlantIds(candidates, ocrText.split(' '));
-
     // look for price
     let priceMatch =  RegexConstants.PRICE.exec(ocrText);
     if(priceMatch) {
@@ -209,7 +217,7 @@ const OCRPicture = () => {
       {ocr &&
         (
           <>
-            <label>
+            <label className="w-100">
               <b>Here's a guess at text in the image.</b><br/>
               Help by fixing typos in the plant's name and price.<br/>
               <input
@@ -242,24 +250,22 @@ const OCRPicture = () => {
           </Button>
         </div>
       )}
-
+      {ocr && errorKey && okToDisplayFormFeedback &&
+        (<p className="mt-1 mb-0 text-danger">{getErrorText(errorKey)}</p>)
+      }
       {currentPlantOption &&
         (
         <>
-          <p className="mt-2">
-            <b>Is this the plant?</b><br/>
-            (hint: you can edit text above and try again)
-          </p>
           {plantOptions &&
             (
-              <>
-              <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching plant</span>
-              <Select
-                value={currentPlantOption}
-                onChange={handlePlantSelectChange}
-                options={plantOptions}
-              />
-              </>
+              <FormGroup className="mt-2">
+                <span className="d-inline-block mb-2"><b>Found something!</b> Select the matching plant</span>
+                <Select
+                  value={currentPlantOption}
+                  onChange={handlePlantSelectChange}
+                  options={plantOptions}
+                />
+              </FormGroup>
             )
           }
           <label className="d-block">
