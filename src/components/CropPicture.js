@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Button, ButtonGroup, Container } from 'reactstrap';
 //= ==== Components ===== //
 import ImageCropper from './imageCropper';
@@ -9,7 +9,7 @@ import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentW
 import { selectOriginalImageById } from '../features/images/originalImagesSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft, faAngleRight, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Selfie.css';
 
 const CropPicture = () => {

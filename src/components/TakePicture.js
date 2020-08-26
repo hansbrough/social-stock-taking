@@ -23,6 +23,7 @@ const TakePicture = () => {
 
   const constraints     = { facingMode: 'environment' };
 
+  // when user starts a new workflow - assign a unique id.
   useEffect(() => {
     // console.log("useEffect workflow updated:",currentWorkflow);
     if( currentWorkflow && (!currentWorkflow.wid || currentWorkflow.completed.finish) ) {

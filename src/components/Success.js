@@ -1,9 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useHistory } from 'react-router-dom';
-import {useDispatch} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Button, ButtonGroup } from 'reactstrap';
 //= ==== Store ===== //
-import { resetCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { selectCurrentWorkflow, resetCurrentWorkflow } from '../features/currentWorkflowSlice';
+import { saveWorkflows } from '../features/workflowsSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCamera } from '@fortawesome/free-solid-svg-icons';
@@ -12,9 +13,17 @@ import '../styles/Selfie.css';
 const Success = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const currentWorkflow = useSelector(selectCurrentWorkflow);
+  const [flag, setFlag] = useState();
+
   useEffect(() => {
-    dispatch(resetCurrentWorkflow())
-  },[dispatch]);
+    if(!flag && currentWorkflow) {
+      setFlag(true);
+      dispatch(saveWorkflows({...currentWorkflow}))
+      dispatch(resetCurrentWorkflow())
+    }
+
+  },[dispatch, currentWorkflow, flag]);
 
   return (
     <Container className="ocr-picture-screen">

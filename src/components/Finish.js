@@ -26,7 +26,7 @@ const Finish = () => {
   //NOTE: these essentially act as reselectors. better way to take advantage of memoization?
   const originalImage   = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
   const croppedImage    = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
-  const imageLocation   = useSelector((state) => selectImageLocationById(state, currentWorkflow.wid));
+  const imageLocation   = useSelector((state) => selectImageLocationById(state, {id:currentWorkflow.wid}));
   const imageDetail     = useSelector((state) => selectImageDetailsById(state, currentWorkflow.wid));
 
   const [savingToCloud, setSavingToCloud] = useState();
@@ -126,23 +126,6 @@ const Finish = () => {
               type="text"
               disabled
             />
-            <Button className="btn download-btn mt-3" color="primary" onClick={uploadToCloud} disabled={savingToCloud || savedToCloud}>
-              {!savingToCloud && !savedToCloud
-                && (
-                  <>Looks Good. Save it. <FontAwesomeIcon icon={faCloudUploadAlt} /></>
-                )
-              }
-              {savingToCloud
-                && (
-                  <>Saving it... <Spinner size="sm" color="light" /></>
-                )
-              }
-              {!savingToCloud && savedToCloud
-                && (
-                  <>All Saved! <FontAwesomeIcon icon={faCloudUploadAlt} /></>
-                )
-              }
-            </Button>
           </FormGroup>
         )}
       <ButtonGroup className="my-3 w-100">
@@ -152,6 +135,23 @@ const Finish = () => {
           })}
         >
           <FontAwesomeIcon icon={faAngleLeft} /> Back
+        </Button>
+        <Button color="primary" onClick={uploadToCloud} disabled={savingToCloud || savedToCloud}>
+          {!savingToCloud && !savedToCloud
+            && (
+              <>Looks Good. Save it. <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+            )
+          }
+          {savingToCloud
+            && (
+              <>Saving it... <Spinner size="sm" color="light" /></>
+            )
+          }
+          {!savingToCloud && savedToCloud
+            && (
+              <>All Saved! <FontAwesomeIcon icon={faCloudUploadAlt} /></>
+            )
+          }
         </Button>
       </ButtonGroup>
     </Container>
