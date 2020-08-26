@@ -13,20 +13,20 @@ import Select from 'react-select';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectLastWorkflowId } from '../features/workflowsSlice';
-import { selectOriginalImageById } from '../features/images/originalImagesSlice';
+import { selectCroppedImageById } from '../features/images/croppedImagesSlice';
 import { saveImageLocation, selectImageLocationById } from '../features/images/imageLocationSlice';
 
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const SetPlace = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const currentWorkflow   = useSelector(selectCurrentWorkflow);
   const lastWorkflowId    = useSelector(selectLastWorkflowId);
-  const originalImage     = useSelector((state) => selectOriginalImageById(state, currentWorkflow.wid));
+  const croppedImage     = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
   const lastImageLocation = useSelector((state) => selectImageLocationById(state, {id:lastWorkflowId}));//reselector
 
   const [position, setPosition] = useState();
@@ -127,7 +127,7 @@ const SetPlace = () => {
       <p>Where did you find this plant?</p>
       <div className="original-picture">
         <div className="preview">
-          {!!originalImage && <img className="preview-img" alt="" src={originalImage.imageDataURL} />}
+          {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}
         </div>
       </div>
 

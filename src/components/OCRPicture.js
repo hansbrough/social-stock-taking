@@ -20,7 +20,7 @@ import {getErrorText} from '../utils/ErrorDisplayUtil';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const OCRPicture = () => {
   const dispatch = useDispatch();
@@ -158,7 +158,7 @@ const OCRPicture = () => {
 
   // find ocr words that maybe plant names or prices
   const handleFindMatchingClick = evt => {
-    console.log("handleFindMatchingClick")
+    //console.log("handleFindMatchingClick")
     setOkToDisplayFormFeedback(true);
     setPlantIds([]);// clear previous searches
     let candidates = [];
