@@ -79,10 +79,6 @@ const Finish = () => {
     <Container className="ocr-picture-screen">
       <h1>Finish</h1>
       <p>Double check the details and save to the cloud.</p>
-      <div className="mb-3">
-        <h4>Original Image</h4>
-        {!!originalImage && <img className="preview-img" alt="" src={originalImage.imageDataURL} />}
-      </div>
       <div className="cropped-picture">
         <h4>Cropped Image</h4>
         {!!croppedImage && <img className="preview-img" alt="" src={croppedImage.imageDataURL} />}

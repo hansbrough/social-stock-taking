@@ -158,7 +158,7 @@ const OCRPicture = () => {
 
   // find ocr words that maybe plant names or prices
   const handleFindMatchingClick = evt => {
-    console.log("handleFindMatchingClick")
+    //console.log("handleFindMatchingClick")
     setOkToDisplayFormFeedback(true);
     setPlantIds([]);// clear previous searches
     let candidates = [];
