@@ -19,7 +19,7 @@ import { saveImageLocation, selectImageLocationById } from '../features/images/i
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const SetPlace = () => {
   const history = useHistory();

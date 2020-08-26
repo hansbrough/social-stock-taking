@@ -20,7 +20,7 @@ import {getErrorText} from '../utils/ErrorDisplayUtil';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const OCRPicture = () => {
   const dispatch = useDispatch();

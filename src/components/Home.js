@@ -1,18 +1,39 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
-  Container,
+  Button
 } from 'reactstrap';
+//= ==== Style ===== //
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCameraRetro, faFileImage } from '@fortawesome/free-solid-svg-icons';
+import '../styles/main.css';
 
 const Home = () => {
-
+  const history = useHistory();
   return (
-    <Container>
-      <h1>Social Stock Taking</h1>
-      <p>Send the people out to take stock of the goods!</p>
-      <p><Link to={{pathname: '/uploadFile', state: { prevPath: window.location.pathname }}}>Upload a local file</Link></p>
-      <p><Link to={{pathname: '/takePicture', state: { prevPath: window.location.pathname }}}>Take a Picture and Upload</Link></p>
-    </Container>
+    <main className="home-screen">
+      <h1 className="display-3">Plant Hunter</h1>
+      <h2>Locate, Document, Share</h2>
+
+      <section className="mt-5">
+        <Button className="mb-4 large-circle-btn" onClick={() => history.push({
+            pathname: '/takePicture',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faCameraRetro} /> Photo
+        </Button>
+
+        <Button className="large-circle-btn" onClick={() => history.push({
+            pathname: '/uploadFile',
+            state: { prevPath: window.location.pathname }
+          })}
+        >
+          <FontAwesomeIcon icon={faFileImage} /> Upload
+        </Button>
+      </section>
+
+    </main>
   );
 };
 

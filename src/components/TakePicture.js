@@ -11,7 +11,7 @@ import { save, reset, selectOriginalImageById } from '../features/images/origina
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const TakePicture = () => {
   const history         = useHistory();
@@ -114,30 +114,28 @@ const TakePicture = () => {
                 <Button className="back-btn" onClick={backToCamera}>
                   <FontAwesomeIcon icon={faCamera} /> Retake
                 </Button>
-
+                <Button color="primary" onClick={() => history.push({
+                    pathname: '/cropPicture',
+                    state: { prevPath: window.location.pathname }
+                  })}
+                >
+                  Crop <FontAwesomeIcon icon={faAngleRight} />
+                </Button>
               </ButtonGroup>
             )}
         </div>
       </div>
-
-      <Button className="ml-3 mt-5" onClick={() => history.push({
-          pathname: '/',
-          state: { prevPath: window.location.pathname }
-        })}
-      >
-        <FontAwesomeIcon icon={faAngleLeft} /> Home
-      </Button>
-
-      {!!originalImage
+      {!originalImage
         && (
-        <Button className="ml-2 mt-5" color="primary" onClick={() => history.push({
-            pathname: '/cropPicture',
-            state: { prevPath: window.location.pathname }
-          })}
-        >
-          Crop <FontAwesomeIcon icon={faAngleRight} />
-        </Button>
-      )}
+          <Button className="ml-3 mt-2" onClick={() => history.push({
+              pathname: '/',
+              state: { prevPath: window.location.pathname }
+            })}
+          >
+            <FontAwesomeIcon icon={faAngleLeft} /> Home
+          </Button>
+        )
+      }
     </>
   );
 };

@@ -8,7 +8,7 @@ import { saveWorkflows } from '../features/workflowsSlice';
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCamera } from '@fortawesome/free-solid-svg-icons';
-import '../styles/Selfie.css';
+import '../styles/main.css';
 
 const Success = () => {
   const history = useHistory();
