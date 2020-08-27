@@ -62,7 +62,7 @@ const OCRPicture = () => {
   useEffect(() => {
     if(plantIds.length) {
       //console.log("plantIds updated:",plantIds);
-      const firstPlant = {...aloePlants[plantIds[0]]};// TODO: for now use first one - later display selectable list
+      const firstPlant = {...aloePlants[plantIds[0]]};
       firstPlant.aka = firstPlant.aka.join(', ');
       setPlantOptions(plantIds.map(id => {
         const latinLabel = aloePlants[id].latin_name ? `${capitalize(aloePlants[id].latin_name)},` : '';
