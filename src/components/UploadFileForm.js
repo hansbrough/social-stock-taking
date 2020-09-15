@@ -4,9 +4,6 @@ import { useHistory } from 'react-router-dom';
 import {
   Container, FormGroup, ButtonGroup, Button, Input,
 } from 'reactstrap';
-//import Select from 'react-select';
-//= ==== Constants ===== //
-//= ==== Components ===== //
 //= ==== Utils ===== //
 import { makeWorkflowUid } from '../utils/SessionUtil';
 //= ==== Store ===== //
@@ -24,17 +21,32 @@ const UploadFileForm = () => {
   const history         = useHistory();
   const dispatch        = useDispatch();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
-  const [imageFile, setImageFile] = useState();
   const [imageDataURL, setImageDataURL] = useState();
   const fileInputElem = useRef(null);
 
   // get a file preview before upload to remote bucket
   const reader  = new FileReader();
 
-
+  // once local file converted to dataURL - reduce size
+  // perf improvement for devices with w/fewer resources during cropping
   reader.onloadend = function () {
-    // console.log("reader.onloadend reader.result:",reader.result)
-    setImageDataURL(reader.result)
+    //console.log("reader.onloadend");
+    const img = new Image();
+    img.src = reader.result;
+    img.onload = () => {
+      const width = img.width / 2;
+      const height = img.height / 2;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      const canvasDataURL = canvas.toDataURL('image/jpeg');//default 'image/png' produces larger files
+      //console.log("...canvasDataURL:",canvasDataURL);
+      dispatch(save({ id: currentWorkflow.wid, imageDataURL: canvasDataURL }));
+      dispatch(saveCurrentWorkflow({ completed: { uploadFile: true }}));
+      setImageDataURL(canvasDataURL);
+    }
   }
 
   // when user starts a new workflow - assign a unique id.
@@ -45,25 +57,13 @@ const UploadFileForm = () => {
     }
   },[currentWorkflow, dispatch]);
 
-  // once local image file has been read
-  useEffect(() => {
-    if (imageFile) {
-      reader.readAsDataURL(imageFile);
-    }
-  },[reader, imageFile]);
-
-  useEffect(() => {
-    if(imageDataURL) {
-      dispatch(save({ id: currentWorkflow.wid, imageDataURL }));
-      dispatch(saveCurrentWorkflow({ completed: { takePicture: true }}));
-    }
-  },[dispatch, currentWorkflow, imageDataURL]);
-
   const handleImageFile = (e) => {
-    setImageFile(e.target.files[0]);
+    reader.readAsDataURL(e.target.files[0]);
   }
 
   // cleanup before going back to home
+  // TODO: also cleanup when user changes the selected file
+  // and batch the dispatch cmds?
   const backToHome = () => {
     const {wid} = {...currentWorkflow};
     dispatch(remove({ wid }));
@@ -74,14 +74,6 @@ const UploadFileForm = () => {
     dispatch(resetCurrentWorkflow());
     history.goBack()
   }
-  // reset
-  // const handleCancelClick = e => {
-  //   console.log("handleCancelClick fileInputElem:",fileInputElem.current)
-  //   e.preventDefault();
-  //   setImageFile();
-  //   setImageDataURL();
-  //   fileInputElem.current.value = ''; // TODO: this not clearing input value..
-  // }
 
   return (
     <Container>
@@ -102,15 +94,12 @@ const UploadFileForm = () => {
           <Button className="back-btn" onClick={() => backToHome()}>
             <FontAwesomeIcon icon={faAngleLeft} /> Home
           </Button>
-          {imageDataURL
-            && (
-              <Button color="primary" onClick={() => history.push({
-                  pathname: '/cropPicture'
-                })}
-              >
-                Crop <FontAwesomeIcon icon={faAngleRight} />
-              </Button>
-            )}
+          <Button color="primary" disabled={!imageDataURL} onClick={() => history.push({
+              pathname: '/cropPicture'
+            })}
+          >
+            Crop <FontAwesomeIcon icon={faAngleRight} />
+          </Button>
         </ButtonGroup>
       </FormGroup>
     </Container>

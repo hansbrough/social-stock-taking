@@ -104,7 +104,7 @@ const OCRPicture = () => {
           //this.contrast(60)
           //this.stackBlur(1);
           this.render(function(){
-            dispatch(saveProcessedImage({ id: currentWorkflow.wid, imageDataURL: this.toBase64() }));
+            dispatch(saveProcessedImage({ id: currentWorkflow.wid, imageDataURL: this.toBase64('jpeg') }));
           });
         });
   }
