@@ -24,13 +24,17 @@ export const processedImagesSlice = createSlice({
         }
       }
     },
+    remove: (state, action) => {
+      console.log("processedImagesSlice remove action:",action);
+      return state.filter(item => item.id !== action.payload.wid);
+    },
     reset: (state, action) => {
       return [];
     }
   }
 })
 
-export const { upsert:saveProcessedImage, reset:resetProcessedImage } = processedImagesSlice.actions;
+export const { upsert:saveProcessedImage, reset:resetProcessedImage, remove:removeProcessedImage } = processedImagesSlice.actions;
 export const selectProcessedImageById = (state, id) => state.processedImages.find(img => img.id === id);
 
 export const selectProcessedImages = state => state.processedImages;

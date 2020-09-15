@@ -14,6 +14,7 @@ import { selectImageDetailsById, saveImageDetails } from '../features/images/ima
 import RegexConstants from '../constants/RegexConstants';
 import ErrorKeyConstants from '../constants/ErrorKeyConstants';
 //= ==== Utils ===== //
+
 import keywords from '../utils/aloe_keywords';
 import {capitalize} from '../utils/CommonUtils';
 import {getErrorText} from '../utils/ErrorDisplayUtil';
@@ -192,7 +193,7 @@ const OCRPicture = () => {
     //console.log("handleSavePlantClick currentPlant:",currentPlant);
     dispatch(saveImageDetails({ id:currentWorkflow.wid, price, ...currentPlant}));
     dispatch(saveCurrentWorkflow({ completed: { ocrPicture: true }}));
-    history.push({pathname: '/setPlace', state: { prevPath: window.location.pathname }});
+    history.push({pathname: '/setPlace'});
   }
 
   const handlePlantSelectChange = selectedOption => {
@@ -281,10 +282,7 @@ const OCRPicture = () => {
       )}
       </section>
       <ButtonGroup className="my-3 w-100">
-        <Button onClick={() => history.push({
-            pathname: '/cropPicture',
-            state: { prevPath: window.location.pathname }
-          })}
+        <Button onClick={() => history.goBack()}
         >
           <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>

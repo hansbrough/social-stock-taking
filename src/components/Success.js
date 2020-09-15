@@ -35,11 +35,10 @@ const Success = () => {
 
       <ButtonGroup className="my-3 w-100">
         <Button color="primary" onClick={() => history.push({
-            pathname: '/takePicture',
-            state: { prevPath: window.location.pathname }
+            pathname: '/'
           })}
         >
-          Take another picture <FontAwesomeIcon icon={faCamera} />
+          Add another picture <FontAwesomeIcon icon={faCamera} />
         </Button>
       </ButtonGroup>
     </Container>

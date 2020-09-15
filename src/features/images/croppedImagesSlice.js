@@ -24,13 +24,17 @@ export const croppedImagesSlice = createSlice({
         }
       }
     },
+    remove: (state, action) => {
+      console.log("croppedImagesSlice remove action:",action);
+      return state.filter(item => item.id !== action.payload.wid);
+    },
     reset: (state, action) => {
       return [];
     }
   }
 })
 
-export const { upsert:saveCroppedImage, reset:resetCroppedImage } = croppedImagesSlice.actions;
+export const { upsert:saveCroppedImage, reset:resetCroppedImage, remove:removeCroppedImage } = croppedImagesSlice.actions;
 
 export const selectCroppedImages = state => state.croppedImages;
 export const selectCroppedImageById = (state, id) => state.croppedImages.find(img => img.id === id);

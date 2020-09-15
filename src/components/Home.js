@@ -17,16 +17,14 @@ const Home = () => {
 
       <section className="mt-5">
         <Button className="mb-4 large-circle-btn" onClick={() => history.push({
-            pathname: '/takePicture',
-            state: { prevPath: window.location.pathname }
+            pathname: '/takePicture'
           })}
         >
           <FontAwesomeIcon icon={faCameraRetro} /> Photo
         </Button>
 
         <Button className="large-circle-btn" onClick={() => history.push({
-            pathname: '/uploadFile',
-            state: { prevPath: window.location.pathname }
+            pathname: '/uploadFile'
           })}
         >
           <FontAwesomeIcon icon={faFileImage} /> Upload

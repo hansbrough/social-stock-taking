@@ -34,13 +34,17 @@ export const imageDetailsSlice = createSlice({
         }
       }
     },
+    remove: (state, action) => {
+      console.log("imageDetailsSlice remove action:",action);
+      return state.filter(item => item.id !== action.payload.wid);
+    },
     reset: (state, action) => {
       return [];
     }
   }
 })
 
-export const { upsert:saveImageDetails, reset:resetImageDetails } = imageDetailsSlice.actions;
+export const { upsert:saveImageDetails, reset:resetImageDetails, remove:removeImageDetails } = imageDetailsSlice.actions;
 
 export const selectImageDetails = state => state.imageDetails;
 export const selectImageDetailsById = (state, id) => state.imageDetails.find(img => img.id === id);

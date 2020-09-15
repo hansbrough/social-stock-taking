@@ -124,10 +124,7 @@ const Finish = () => {
           </FormGroup>
         )}
       <ButtonGroup className="my-3 w-100">
-        <Button onClick={() => history.push({
-            pathname: '/setPlace',
-            state: { prevPath: window.location.pathname }
-          })}
+        <Button onClick={() => history.goBack()}
         >
           <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>

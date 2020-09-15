@@ -7,6 +7,7 @@ import ImageCropper from './imageCropper';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
 import { selectOriginalImageById } from '../features/images/originalImagesSlice';
+//= ==== Utils ===== //
 //= ==== Style ===== //
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +25,7 @@ const CropPicture = () => {
   const handleSaveClick = evt => {
     setSaveClicked(true);
     dispatch(saveCurrentWorkflow({ completed: { cropPicture: true }}));
-    history.push({pathname: '/getPictureText', state: { prevPath: window.location.pathname }});
+    history.push({pathname: '/getPictureText'});
   };
 
   // provided to the cropper component which hands back a reference to it's imageElem.
@@ -50,10 +51,7 @@ const CropPicture = () => {
       </div>
 
       <ButtonGroup className="my-3 w-100">
-        <Button onClick={() => history.push({
-            pathname: '/takePicture',
-            state: { prevPath: window.location.pathname }
-          })}
+        <Button onClick={() => history.goBack()}
         >
           <FontAwesomeIcon icon={faAngleLeft} /> Back
         </Button>

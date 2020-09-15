@@ -115,8 +115,7 @@ const TakePicture = () => {
                   <FontAwesomeIcon icon={faCamera} /> Retake
                 </Button>
                 <Button color="primary" onClick={() => history.push({
-                    pathname: '/cropPicture',
-                    state: { prevPath: window.location.pathname }
+                    pathname: '/cropPicture'
                   })}
                 >
                   Crop <FontAwesomeIcon icon={faAngleRight} />
@@ -127,12 +126,9 @@ const TakePicture = () => {
       </div>
       {!originalImage
         && (
-          <Button className="ml-3 mt-2" onClick={() => history.push({
-              pathname: '/',
-              state: { prevPath: window.location.pathname }
-            })}
+          <Button className="ml-3 mt-2" onClick={() => history.goBack()}
           >
-            <FontAwesomeIcon icon={faAngleLeft} /> Home
+            <FontAwesomeIcon icon={faAngleLeft} /> Back
           </Button>
         )
       }

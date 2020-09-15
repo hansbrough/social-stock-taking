@@ -24,6 +24,9 @@ export const imageLocationSlice = createSlice({
         }
       }
     },
+    remove: (state, action) => {
+      return state.filter(item => item.id !== action.payload.wid);
+    },
     reset: (state, action) => {
       return [];
     }
@@ -31,7 +34,7 @@ export const imageLocationSlice = createSlice({
 })
 
 //Actions
-export const { upsert:saveImageLocation, reset:resetImageLocation } = imageLocationSlice.actions;
+export const { upsert:saveImageLocation, reset:resetImageLocation, remove: removeImageLocation } = imageLocationSlice.actions;
 
 //Selectors
 export const selectImageLocations = state => state.imageLocation;
