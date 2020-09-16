@@ -1,3 +1,4 @@
+/*-- All known Aloes. ids must be unique--*/
 export default {
   1: {
     "pid": 1,
@@ -105,19 +106,19 @@ export default {
     "pid": 20,
     "latin_name": "aloe chabaudii",
     "slug": "aloe-chabaudii",
-    "aka": ["dwala", "chabaud"],
+    "aka": ["Aloe chabaudii 'Orange Dawn'"],
   },
   21: {
     "pid": 21,
     "latin_name": "aloe ciliaris",
     "slug": "aloe-ciliaris",
-    "aka": ["climbing", "ciliaris"],
+    "aka": ["Climbing Aloe"],
   },
   22: {
     "pid": 22,
     "latin_name": "Aloe classenii",
     "slug": "aloe-classenii",
-    "aka": ["classen"],
+    "aka": ["Classen's Aloe"],
   },
   23: {
     "pid": 23,
@@ -165,7 +166,7 @@ export default {
     "pid": 31,
     "latin_name": "aloe dawei",
     "slug": "aloe-dawei",
-    "aka": ["dawei","dawe"],
+    "aka": ["Dawe's Aloe"],
   },
   32: {
     "pid": 32,
@@ -177,13 +178,13 @@ export default {
     "pid": 33,
     "latin_name": "aloe dichotoma",
     "slug": "aloe-dichotoma",
-    "aka": ["dichotomum", "dichotoma", "quiver", "kokerboom"],
+    "aka": ["Aloe dichotoma", "Quiver Tree", "Kokerboom"],
   },
   34: {
     "pid": 34,
     "latin_name": "Aloe dorotheae",
     "slug": "aloe-dorotheae",
-    "aka": ["Sunset Aloe", "Aloe harmsii"],
+    "aka": ["Sunset Aloe", "Crimson Aloe", "Aloe harmsii"],
   },
   35: {
     "pid":35,
@@ -200,7 +201,7 @@ export default {
   37: {
     "pid": 37,
     "slug": "aloe-erik-the-red",
-    "aka": ["erik","red"],
+    "aka": ["Aloe Erik the Red"],
   },
   38: {
     "pid": 38,
@@ -240,7 +241,7 @@ export default {
   44: {
     "pid": 44,
     "slug": "aloe-grassy-lassie",
-    "aka": ["grassy", "lassie"]
+    "aka": ["Grassy Lassie"]
   },
   45: {
     "pid": 45,
@@ -252,7 +253,7 @@ export default {
     "pid":46,
     "latin_name": "aloe helenae",
     "slug": "aloe-helenae",
-    "aka": ["helenae", "malagasy", "vahondrandra"],
+    "aka": ["Vahondrandra"],
   },
   47: {
     "pid": 47,
@@ -280,7 +281,7 @@ export default {
     "pid": 51,
     "latin_name": "aloe humilis",
     "slug": "aloe-humilis",
-    "aka": ["Hedgehog Aloe", "Spider Aloe", "drocodile", "jaws"],
+    "aka": ["Hedgehog Aloe", "Spider Aloe"],
   },
   52: {
     "pid": 52,
@@ -334,13 +335,13 @@ export default {
     "pid": 60,
     "latin_name": "aloe marlothii",
     "slug": "aloe-marlothii",
-    "aka": ["mountain", "spiny", "flat flowered"],
+    "aka": ["Mountain Aloe"],
   },
   61: {
     "pid": 61,
     "latin_name": "aloe mawii",
     "slug": "aloe-mawii",
-    "aka": ["chinthembwe", "khuzi", "lichongwe"],
+    "aka": ["Chinthembwe", "Khuzi", "Lichongwe"],
   },
   62: {
     "pid": 62,
@@ -1177,5 +1178,15 @@ export default {
     "pid": 229,
     "latin_name": "aloe wrefordii",
     "aka": []
+  },
+  230: {
+    "pid": 230,
+    "aka": ["Aloe 'Tangerine'"]
+  },
+  231: {
+    "pid": 231,
+    "latin_name": "aloe capitata",
+    "slug": "aloe-capitata-quartziticola-yellow-hoodie",
+    "aka": ["Aloe 'Yellow Hoodie'"],
   },
 };

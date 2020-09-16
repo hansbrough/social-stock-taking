@@ -191,7 +191,7 @@ const keywords = {
   "reitz":[78],
   "reynoldsii":[79],
   "mbashe":[79],
-  "yellow":[79],
+  "yellow":[79,231],
   "spineless":[79],
   "rivierei":[80],
   "rooikappie":[81],
@@ -419,6 +419,9 @@ const keywords = {
   "aloe wilsonii":[227],
   "wollanstonii":[228],
   "wrefordii":[229],
+  "tangerine":[230],
+  "hoodie":[231],
+  "crimson":[34],
 };
 
 export default keywords;

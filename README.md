@@ -12,6 +12,8 @@ This project pulls together several pieces to create the workflow described abov
 
 The user's camera is accessed via `navigator.mediaDevices.getUserMedia`. Since mobile devices often have more than one camera using the config `{ facingMode: 'environment' }` makes sure we are *not* using the 'selfie' camera. A camera 'stream' is provided to a video element. The `useRef` hook provides access to the video element which is passed to a `canvas` element's `drawImage` context method. The resulting canvas drawing is exported as a base64 encoded dataUrl and saved to the redux store.
 
+Alternatively user's can upload existing images from their local drive. The app uses a combination of the [Html5 FileReader API](https://developer.mozilla.org/en-US/docs/Web/API/FileReader) and the [Html5 Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) to save an image dataUrl for use through the workflow.
+
 #### Cropping
 
 The component responsible for cropping uses a specialized library for the heavy lifting - [cropperjs](https://fengyuanchen.github.io/cropperjs/). An instance of Cropperjs is initialized with a reference to an image element whose `src` is set to the image captured above. The cropperjs instance is assigned to an empty useRef Hook for convenience of access throughout the project's cropping component (not just in the useEffect hook where it's initialized). Cropperjs generates custom events through the image element e.g. `cropEnd`. Cropperjs methods are called via the reference for example `cropper.current.rotate(2)`. The cropped version of the original image is saved to a dataUrl string with the help of a canvas element and saved to the redux store.
@@ -29,8 +31,6 @@ The users location is determined with the help of the [HTML5's Geolocation API](
 
 #### Saving to the Cloud and Hosting
 [Firebase Storage](https://firebase.google.com/products/storage) is used for saving images and [Cloud Firestore](https://firebase.google.com/products/firestore) for persisting data. The site is served with [Firebase Hosting](https://firebase.google.com/products/hosting). The work in progress is available here: [https://gardenplants-96576.web.app/](https://gardenplants-96576.web.app/) - try it on your phone... on desktop you'll end up taking selfies :)
-
-<em>caveat</em> - the file upload flow is non-functional for the time being.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

@@ -6,7 +6,8 @@ import { Container, Button, ButtonGroup, Progress, Input, FormGroup } from 'reac
 import Select from 'react-select';
 //= ==== Store ===== //
 import { selectCurrentWorkflow, saveCurrentWorkflow } from '../features/currentWorkflowSlice';
-import { selectAloes } from '../features/plants/plantsSlice';
+import { selectSucculents } from '../features/plants/plantsSlice';
+import { selectSucculentKeywords } from '../features/plants/keywordsSlice';
 import { selectCroppedImageById } from '../features/images/croppedImagesSlice';
 import { selectProcessedImageById, saveProcessedImage } from '../features/images/processedImagesSlice';
 import { selectImageDetailsById, saveImageDetails } from '../features/images/imageDetailsSlice';
@@ -14,8 +15,6 @@ import { selectImageDetailsById, saveImageDetails } from '../features/images/ima
 import RegexConstants from '../constants/RegexConstants';
 import ErrorKeyConstants from '../constants/ErrorKeyConstants';
 //= ==== Utils ===== //
-
-import keywords from '../utils/aloe_keywords';
 import {capitalize} from '../utils/CommonUtils';
 import {getErrorText} from '../utils/ErrorDisplayUtil';
 //= ==== Style ===== //
@@ -24,10 +23,12 @@ import { faAngleLeft, faAngleRight, faSearch, faCog } from '@fortawesome/free-so
 import '../styles/main.css';
 
 const OCRPicture = () => {
+  //console.log("OCRPicture Screen")
   const dispatch = useDispatch();
   const history = useHistory();
   const currentWorkflow = useSelector(selectCurrentWorkflow);
-  const aloePlants = useSelector(selectAloes);
+  const succulents = useSelector(selectSucculents);
+  const keywords = useSelector(selectSucculentKeywords);
   const croppedImage = useSelector((state) => selectCroppedImageById(state, currentWorkflow.wid));
   const processedImage = useSelector((state) => selectProcessedImageById(state, currentWorkflow.wid));
   const imageDetails = useSelector((state) => selectImageDetailsById(state, currentWorkflow.wid));
@@ -63,20 +64,20 @@ const OCRPicture = () => {
   useEffect(() => {
     if(plantIds.length) {
       //console.log("plantIds updated:",plantIds);
-      const firstPlant = {...aloePlants[plantIds[0]]};
+      const firstPlant = {...succulents[plantIds[0]]}; //TODO - turn this into a reselector e.g. 'getbyId'
       firstPlant.aka = firstPlant.aka.join(', ');
       setPlantOptions(plantIds.map(id => {
-        const latinLabel = aloePlants[id].latin_name ? `${capitalize(aloePlants[id].latin_name)},` : '';
-        const commonName = aloePlants[id].aka.length ? `${aloePlants[id].aka.join(', ')}` : '';
+        const latinLabel = succulents[id].latin_name ? `${capitalize(succulents[id].latin_name)},` : '';
+        const commonName = succulents[id].aka.length ? `${succulents[id].aka.join(', ')}` : '';
         return {value: id, label: `${latinLabel} ${commonName}`}
       }));
       setCurrentPlant(firstPlant);
       setErrorKey();
     } else {
-      console.log("useEffect no matching plantIds found");
+      //console.log("useEffect no matching plantIds found");
       setErrorKey(ErrorKeyConstants.NO_CANDIDATES);
     }
-  },[aloePlants, plantIds]);
+  },[succulents, plantIds]);
 
   // if imageDetails (from store) updated
   useEffect(() => {
@@ -90,13 +91,13 @@ const OCRPicture = () => {
 
   // do something once plant options are known
   useEffect(() => {
-    console.log("plantOptions updated:",plantOptions)
+    //console.log("plantOptions updated:",plantOptions)
     !!plantOptions && setCurrentPlantOption(plantOptions[0]);
   },[plantOptions]);
 
   // attempt to make image more readable by OCR
   const preProcessOCRImage = () => {
-    console.log("preProcessOCRImage")
+    //console.log("preProcessOCRImage")
     Caman('#filteredImage', croppedImage.imageDataURL, function() {
           this.greyscale();
           this.sharpen(100);
@@ -114,7 +115,7 @@ const OCRPicture = () => {
   });
 
   const runOCR = async (imageUrl) => {
-    console.log("runOCR");
+    //console.log("runOCR");
     setOcrStarted(true);
     await worker.load();
     await worker.loadLanguage('eng');
@@ -131,7 +132,7 @@ const OCRPicture = () => {
   // given an array of words determine if any members are keywords and replace  plantIds list.
   // optionally use a backup list for further searching
   const updatePlantIds = (list, secondaryList) => {
-    // console.log("updatePlantIds candidate words list:",list);
+    //console.log("updatePlantIds candidate words list:",list);
     let result;
     let flag;
     const plantIdsList = [];
@@ -164,17 +165,17 @@ const OCRPicture = () => {
     setPlantIds([]);// clear previous searches
     let candidates = [];
     const ocrText = ocr.toLowerCase();
-    // look for context word 'aloe'
+    // look for succulent related context words e.g. 'aloe' or 'agave'
     // get word before and after context keyword
-    let match = RegexConstants.ALOE_KEYWORDS.exec(ocrText);
+    let match = RegexConstants.SUCCULENT_KEYWORDS.exec(ocrText);
     // iterate through all matches looking for named groups
     while (match != null) {
       //console.log("...match.groups:",match.groups)
       if(match) {
         candidates = [...new Set(candidates.concat(Object.values(match.groups)))];
-        console.log("...candidates:",candidates);
+        //console.log("...candidates:",candidates);
       }
-      match = RegexConstants.ALOE_KEYWORDS.exec(ocr.toLowerCase());
+      match = RegexConstants.SUCCULENT_KEYWORDS.exec(ocr.toLowerCase());
     }
     // search for these prefix/suffix words in list of known keywords
     updatePlantIds(candidates, ocrText.split(' '));
@@ -199,7 +200,7 @@ const OCRPicture = () => {
   const handlePlantSelectChange = selectedOption => {
     //console.log("handlePlantSelectChange:",selectedOption);
     setCurrentPlantOption(selectedOption);
-    setCurrentPlant(aloePlants[selectedOption.value]);
+    setCurrentPlant(succulents[selectedOption.value]);
   }
 
   return (
