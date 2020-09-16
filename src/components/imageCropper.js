@@ -31,7 +31,7 @@ const ImageCropper = (
         //console.log("!! ready:",this.cropper);
         cropper.current.crop();
         const canvasElem = cropper.current.getCroppedCanvas();
-        setCroppedImageUrl(canvasElem.toDataURL("image/png"))
+        setCroppedImageUrl(canvasElem.toDataURL("image/jpeg"))
       });
       imageElement.current.addEventListener('crop', (evt) => {
         //console.log("!! crop:",evt.detail);
@@ -40,7 +40,7 @@ const ImageCropper = (
       imageElement.current.addEventListener('cropend', (evt) => {
         //console.log("!! cropend:",evt.detail);
         const canvasElem = cropper.current.getCroppedCanvas();
-        setCroppedImageUrl(canvasElem.toDataURL("image/png"))
+        setCroppedImageUrl(canvasElem.toDataURL("image/jpeg"))
       });
       // Create the cropper instance
       cropper.current = new Cropper(imageElement.current);
