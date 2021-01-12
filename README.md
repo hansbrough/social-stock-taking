@@ -30,7 +30,7 @@ The extracted text is run through a regular expression that compiles a list of a
 The users location is determined with the help of the [HTML5's Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) and [Google's PlacesService](https://developers.google.com/places/web-service/details) API. The user can choose between multiple place matches - or accept the default choice. If the user the same lat/lng position in subsequent workflows the Google Places API request is skipped and the prior location details are recycled. The selected place details are saved to the store.
 
 #### Saving to the Cloud and Hosting
-[Firebase Storage](https://firebase.google.com/products/storage) is used for saving images and [Cloud Firestore](https://firebase.google.com/products/firestore) for persisting data. The site is served with [Firebase Hosting](https://firebase.google.com/products/hosting). The work in progress is available here: [https://gardenplants-96576.web.app/](https://gardenplants-96576.web.app/) - try it on your phone... on desktop you'll end up taking selfies :)
+[Firebase Storage](https://firebase.google.com/products/storage) is used for saving images and [Cloud Firestore](https://firebase.google.com/products/firestore) for persisting data. The site is served with [Firebase Hosting](https://firebase.google.com/products/hosting). The work in progress is available here: ~~[https://gardenplants-96576.web.app/](https://gardenplants-96576.web.app/) - try it on your phone... on desktop you'll end up taking selfies :)~~ [I've since let a few firebase settings expire until I resume working on this project]
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
